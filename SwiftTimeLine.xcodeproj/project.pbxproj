@@ -15,7 +15,7 @@
 		A10006 /* HorizontalTimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10006; };
 		A10007 /* VerticalTimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10007; };
 		A10008 /* EventEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10008; };
-		A10009 /* TimelineEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10009; };
+		A10009 /* TagManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10009; };
 		A1000A /* GroupEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000A; };
 		A1000B /* ColorUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000B; };
 /* End PBXBuildFile section */
@@ -29,7 +29,7 @@
 		B10006 /* HorizontalTimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HorizontalTimelineView.swift; sourceTree = "<group>"; };
 		B10007 /* VerticalTimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerticalTimelineView.swift; sourceTree = "<group>"; };
 		B10008 /* EventEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventEditorView.swift; sourceTree = "<group>"; };
-		B10009 /* TimelineEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineEditorView.swift; sourceTree = "<group>"; };
+		B10009 /* TagManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagManagerView.swift; sourceTree = "<group>"; };
 		B1000A /* GroupEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupEditorView.swift; sourceTree = "<group>"; };
 		B1000B /* ColorUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorUtils.swift; sourceTree = "<group>"; };
 		C10001 /* SwiftTimeLine.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftTimeLine.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -82,7 +82,7 @@
 				B10006 /* HorizontalTimelineView.swift */,
 				B10007 /* VerticalTimelineView.swift */,
 				B10008 /* EventEditorView.swift */,
-				B10009 /* TimelineEditorView.swift */,
+				B10009 /* TagManagerView.swift */,
 				B1000A /* GroupEditorView.swift */,
 			);
 			path = Views;

@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import AppKit
 
 @MainActor
 class DataStore: ObservableObject {
@@ -59,70 +60,154 @@ class DataStore: ObservableObject {
         }
     }
 
-    // MARK: - Timeline Operations
-
-    func addTimeline(groupID: UUID, name: String, type: String, color: String) {
-        if let i = groups.firstIndex(where: { $0.id == groupID }) {
-            groups[i].timelines.append(Timeline(name: name, type: type, color: color))
-            save()
-        }
-    }
-
-    func deleteTimeline(groupID: UUID, timelineID: UUID) {
-        if let i = groups.firstIndex(where: { $0.id == groupID }) {
-            groups[i].timelines.removeAll { $0.id == timelineID }
-            save()
-        }
-    }
-
-    func updateTimeline(groupID: UUID, timelineID: UUID, name: String, type: String, color: String) {
-        if let gi = groups.firstIndex(where: { $0.id == groupID }),
-           let ti = groups[gi].timelines.firstIndex(where: { $0.id == timelineID }) {
-            groups[gi].timelines[ti].name = name
-            groups[gi].timelines[ti].type = type
-            groups[gi].timelines[ti].color = color
-            save()
-        }
-    }
-
     // MARK: - Event Operations
 
-    func addEvent(groupID: UUID, timelineID: UUID, event: TimelineEvent) {
-        if let gi = groups.firstIndex(where: { $0.id == groupID }),
-           let ti = groups[gi].timelines.firstIndex(where: { $0.id == timelineID }) {
-            groups[gi].timelines[ti].events.append(event)
-            groups[gi].timelines[ti].events.sort { $0.date < $1.date }
+    func addEvent(groupID: UUID, event: TimelineEvent) {
+        if let gi = groups.firstIndex(where: { $0.id == groupID }) {
+            groups[gi].events.append(event)
+            groups[gi].events.sort { $0.date < $1.date }
             save()
         }
     }
 
-    func deleteEvent(groupID: UUID, timelineID: UUID, eventID: UUID) {
-        if let gi = groups.firstIndex(where: { $0.id == groupID }),
-           let ti = groups[gi].timelines.firstIndex(where: { $0.id == timelineID }) {
-            groups[gi].timelines[ti].events.removeAll { $0.id == eventID }
+    func deleteEvent(groupID: UUID, eventID: UUID) {
+        if let gi = groups.firstIndex(where: { $0.id == groupID }) {
+            groups[gi].events.removeAll { $0.id == eventID }
             save()
         }
     }
 
-    func updateEvent(groupID: UUID, timelineID: UUID, event: TimelineEvent) {
+    func updateEvent(groupID: UUID, event: TimelineEvent) {
         if let gi = groups.firstIndex(where: { $0.id == groupID }),
-           let ti = groups[gi].timelines.firstIndex(where: { $0.id == timelineID }),
-           let ei = groups[gi].timelines[ti].events.firstIndex(where: { $0.id == event.id }) {
-            groups[gi].timelines[ti].events[ei] = event
-            groups[gi].timelines[ti].events.sort { $0.date < $1.date }
+           let ei = groups[gi].events.firstIndex(where: { $0.id == event.id }) {
+            groups[gi].events[ei] = event
+            groups[gi].events.sort { $0.date < $1.date }
+            save()
+        }
+    }
+
+    // MARK: - Tag Operations (per group)
+
+    func addTag(groupID: UUID, name: String, color: String) {
+        if let gi = groups.firstIndex(where: { $0.id == groupID }) {
+            groups[gi].tags.append(Tag(name: name, color: color))
+            save()
+        }
+    }
+
+    func deleteTag(groupID: UUID, tagID: UUID) {
+        if let gi = groups.firstIndex(where: { $0.id == groupID }) {
+            groups[gi].tags.removeAll { $0.id == tagID }
+            for ei in groups[gi].events.indices {
+                groups[gi].events[ei].tagIDs.removeAll { $0 == tagID }
+            }
+            save()
+        }
+    }
+
+    func updateTag(groupID: UUID, tag: Tag) {
+        if let gi = groups.firstIndex(where: { $0.id == groupID }),
+           let ti = groups[gi].tags.firstIndex(where: { $0.id == tag.id }) {
+            groups[gi].tags[ti] = tag
             save()
         }
     }
 
     // MARK: - Helpers
 
-    func allEvents(in group: TimelineGroup) -> [(timeline: Timeline, event: TimelineEvent)] {
-        group.timelines.flatMap { tl in
-            tl.events.map { (timeline: tl, event: $0) }
-        }.sorted { $0.event.date < $1.event.date }
+    func tagsInGroup(_ groupID: UUID) -> [Tag] {
+        groups.first { $0.id == groupID }?.tags ?? []
     }
 
-    func findGroupID(forTimeline timelineID: UUID) -> UUID? {
-        groups.first { $0.timelines.contains { $0.id == timelineID } }?.id
+    func tag(inGroup groupID: UUID, for id: UUID) -> Tag? {
+        groups.first { $0.id == groupID }?.tags.first { $0.id == id }
+    }
+
+    func tags(inGroup groupID: UUID, for ids: [UUID]) -> [Tag] {
+        let groupTags = groups.first { $0.id == groupID }?.tags ?? []
+        return ids.compactMap { id in groupTags.first { $0.id == id } }
+    }
+
+    func filteredEvents(in group: TimelineGroup, byTagIDs tagIDs: Set<UUID>) -> [TimelineEvent] {
+        if tagIDs.isEmpty { return group.events }
+        return group.events.filter { event in
+            !event.tagIDs.filter { tagIDs.contains($0) }.isEmpty
+        }
+    }
+
+    // MARK: - Export / Import
+
+    func exportGroup(id: UUID) -> Data? {
+        guard let group = groups.first(where: { $0.id == id }) else { return nil }
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        return try? encoder.encode(group)
+    }
+
+    func importGroup(from data: Data) -> Bool {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        guard let imported = try? decoder.decode(TimelineGroup.self, from: data) else { return false }
+        // Assign new ID to avoid conflicts
+        var newGroup = imported
+        newGroup.id = UUID()
+        groups.append(newGroup)
+        save()
+        return true
+    }
+
+    func exportGroupToFile(id: UUID) {
+        guard let data = exportGroup(id: id),
+              let group = groups.first(where: { $0.id == id }) else { return }
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = "\(group.name).json"
+        panel.allowedContentTypes = [.json]
+        panel.canCreateDirectories = true
+        if panel.runModal() == .OK, let url = panel.url {
+            try? data.write(to: url, options: .atomic)
+        }
+    }
+
+    func importGroupFromFile() {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.json]
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        if panel.runModal() == .OK, let url = panel.url {
+            if let data = try? Data(contentsOf: url) {
+                // Try single group first, then full AppData
+                if importGroup(from: data) { return }
+                _ = importAllData(from: data)
+            }
+        }
+    }
+
+    // MARK: - Export / Import All Data
+
+    func exportAllDataToFile() {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        guard let data = try? encoder.encode(AppData(groups: groups)) else { return }
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = "SwiftTimeLine_全部数据.json"
+        panel.allowedContentTypes = [.json]
+        panel.canCreateDirectories = true
+        if panel.runModal() == .OK, let url = panel.url {
+            try? data.write(to: url, options: .atomic)
+        }
+    }
+
+    func importAllData(from data: Data) -> Bool {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        guard let appData = try? decoder.decode(AppData.self, from: data) else { return false }
+        for var group in appData.groups {
+            group.id = UUID()
+            groups.append(group)
+        }
+        save()
+        return true
     }
 }

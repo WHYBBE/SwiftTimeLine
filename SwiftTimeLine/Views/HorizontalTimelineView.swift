@@ -3,12 +3,12 @@ import SwiftUI
 struct HorizontalTimelineView: View {
     @EnvironmentObject var store: DataStore
     let group: TimelineGroup
+    let onSelectEvent: (TimelineEvent) -> Void
 
     @State private var scale: CGFloat = 1.0
-    @State private var selectedEvent: (groupID: UUID, timelineID: UUID, event: TimelineEvent)?
 
     private var dateRange: (min: Date, max: Date) {
-        let allDates = group.timelines.flatMap { $0.events.map(\.date) }
+        let allDates = group.events.map(\.date)
         guard let minDate = allDates.min(), let maxDate = allDates.max() else {
             let now = Date()
             return (now.addingTimeInterval(-86400 * 30), now)
@@ -19,7 +19,6 @@ struct HorizontalTimelineView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Header
             HStack {
                 Text(group.name)
                     .font(.title2.bold())
@@ -42,27 +41,24 @@ struct HorizontalTimelineView: View {
 
             Divider()
 
-            // Timeline area
-            ScrollView([.horizontal, .vertical]) {
-                VStack(alignment: .leading, spacing: 0) {
-                    // Time axis
-                    timeAxis
-                        .padding(.leading, 140)
-
-                    // Timeline rows
-                    ForEach(group.timelines) { timeline in
-                        timelineRow(timeline: timeline)
-                    }
+            if group.events.isEmpty {
+                VStack(spacing: 12) {
+                    Image(systemName: "calendar.badge.plus")
+                        .font(.system(size: 36))
+                        .foregroundStyle(.secondary)
+                    Text("暂无事件")
+                        .foregroundStyle(.secondary)
                 }
-                .padding(.bottom, 20)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ScrollView([.horizontal, .vertical]) {
+                    VStack(alignment: .leading, spacing: 0) {
+                        timeAxis
+                        eventRow
+                    }
+                    .padding(.bottom, 20)
+                }
             }
-        }
-        .popover(item: Binding(
-            get: { selectedEvent.map { SelectedEventItem(groupID: $0.groupID, timelineID: $0.timelineID, event: $0.event) } },
-            set: { selectedEvent = $0.map { ($0.groupID, $0.timelineID, $0.event) } }
-        )) { item in
-            EventEditorView(mode: .edit(item.event), groupID: item.groupID, timelineID: item.timelineID)
-                .frame(width: 320)
         }
     }
 
@@ -103,65 +99,61 @@ struct HorizontalTimelineView: View {
             }
         }
         .frame(width: totalWidth, height: 30)
+        .padding(.leading, 20)
     }
 
     @ViewBuilder
-    private func timelineRow(timeline: Timeline) -> some View {
-        HStack(alignment: .center, spacing: 0) {
-            // Label
-            HStack(spacing: 6) {
-                Circle()
-                    .fill(Color(hex: timeline.color))
-                    .frame(width: 8, height: 8)
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(timeline.name)
-                        .font(.caption.bold())
+    private var eventRow: some View {
+        ZStack(alignment: .leading) {
+            Rectangle()
+                .fill(Color.secondary.opacity(0.15))
+                .frame(width: totalWidth, height: 1)
+
+            ForEach(group.events) { event in
+                let x = xPosition(for: event.date)
+                let eventColor = primaryColor(for: event)
+                VStack(spacing: 2) {
+                    Circle()
+                        .fill(eventColor)
+                        .frame(width: 12, height: 12)
+                        .shadow(color: eventColor.opacity(0.4), radius: 3)
+                    Text(event.title)
+                        .font(.system(size: 9))
                         .lineLimit(1)
-                    Text(timeline.type)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: 60)
+                    tagsPreview(for: event)
                 }
-            }
-            .frame(width: 130, alignment: .leading)
-            .padding(.leading, 10)
-
-            // Events on the axis
-            ZStack(alignment: .leading) {
-                // Row background line
-                Rectangle()
-                    .fill(Color.secondary.opacity(0.1))
-                    .frame(width: totalWidth, height: 1)
-                    .offset(y: 0)
-
-                ForEach(timeline.events) { event in
-                    let x = xPosition(for: event.date)
-                    eventDot(event: event, timeline: timeline, x: x)
+                .position(x: x, y: 24)
+                .onTapGesture {
+                    onSelectEvent(event)
                 }
+                .help("\(event.title)\n\(formatTooltipDate(event.date))")
             }
-            .frame(width: totalWidth, height: 40)
         }
-        .frame(height: 44)
+        .frame(width: totalWidth, height: 60)
+        .padding(.leading, 20)
     }
 
     @ViewBuilder
-    private func eventDot(event: TimelineEvent, timeline: Timeline, x: CGFloat) -> some View {
-        let color = Color(hex: event.color)
-        VStack(spacing: 2) {
-            Circle()
-                .fill(color)
-                .frame(width: 12, height: 12)
-                .shadow(color: color.opacity(0.4), radius: 3)
-            Text(event.title)
-                .font(.system(size: 9))
-                .lineLimit(1)
-                .frame(maxWidth: 60)
+    private func tagsPreview(for event: TimelineEvent) -> some View {
+        let eventTags = group.tags.filter { event.tagIDs.contains($0.id) }
+        if !eventTags.isEmpty {
+            HStack(spacing: 2) {
+                ForEach(eventTags.prefix(3)) { tag in
+                    Circle()
+                        .fill(Color(hex: tag.color))
+                        .frame(width: 5, height: 5)
+                }
+            }
         }
-        .position(x: x, y: 20)
-        .onTapGesture {
-            let gid = store.findGroupID(forTimeline: timeline.id) ?? group.id
-            selectedEvent = (gid, timeline.id, event)
+    }
+
+    private func primaryColor(for event: TimelineEvent) -> Color {
+        if let firstTagID = event.tagIDs.first,
+           let tag = group.tags.first(where: { $0.id == firstTagID }) {
+            return Color(hex: tag.color)
         }
-        .help("\(event.title)\n\(formatTooltipDate(event.date))")
+        return Color(hex: event.color)
     }
 
     private func formatAxisDate(_ date: Date) -> String {
@@ -171,16 +163,12 @@ struct HorizontalTimelineView: View {
     }
 
     private func formatTooltipDate(_ date: Date) -> String {
+        let cal = Calendar.current
+        let comps = cal.dateComponents([.hour, .minute], from: date)
+        let hasTime = (comps.hour ?? 0) != 0 || (comps.minute ?? 0) != 0
         let fmt = DateFormatter()
         fmt.dateStyle = .medium
-        fmt.timeStyle = .short
+        fmt.timeStyle = hasTime ? .short : .none
         return fmt.string(from: date)
     }
-}
-
-private struct SelectedEventItem: Identifiable {
-    let groupID: UUID
-    let timelineID: UUID
-    let event: TimelineEvent
-    var id: UUID { event.id }
 }

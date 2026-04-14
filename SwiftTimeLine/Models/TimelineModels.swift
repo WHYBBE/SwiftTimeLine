@@ -1,26 +1,25 @@
 import Foundation
 
+struct Tag: Identifiable, Codable, Hashable {
+    var id = UUID()
+    var name: String
+    var color: String = "#4A90D9"
+}
+
 struct TimelineEvent: Identifiable, Codable, Hashable {
     var id = UUID()
     var title: String
     var description: String = ""
     var date: Date
-    var tags: [String] = []
+    var tagIDs: [UUID] = []
     var color: String = "#4A90D9"
-}
-
-struct Timeline: Identifiable, Codable, Hashable {
-    var id = UUID()
-    var name: String
-    var type: String = "默认"
-    var color: String = "#4A90D9"
-    var events: [TimelineEvent] = []
 }
 
 struct TimelineGroup: Identifiable, Codable, Hashable {
     var id = UUID()
     var name: String
-    var timelines: [Timeline] = []
+    var tags: [Tag] = []
+    var events: [TimelineEvent] = []
 }
 
 struct AppData: Codable {

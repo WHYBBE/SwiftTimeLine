@@ -5,26 +5,22 @@ enum ViewMode: String, CaseIterable {
     case vertical = "垂直"
 }
 
-enum SidebarSelection: Hashable {
-    case group(UUID)
-    case timeline(groupID: UUID, timelineID: UUID)
-}
-
 struct ContentView: View {
     @EnvironmentObject var store: DataStore
-    @State private var selection: SidebarSelection?
+    @State private var selectedGroupID: UUID?
     @State private var viewMode: ViewMode = .horizontal
     @State private var showAddGroup = false
-    @State private var showAddTimeline = false
-    @State private var showAddEvent = false
+    @State private var showTagManager = false
+    @State private var activeTagIDs: Set<UUID> = []
+    @State private var editingEvent: TimelineEvent?
+    @State private var isAddingEvent = false
 
     var body: some View {
         NavigationSplitView {
-            SidebarView(selection: $selection)
+            SidebarView(selectedGroupID: $selectedGroupID)
                 .navigationSplitViewColumnWidth(min: 180, ideal: 220)
         } detail: {
-            detailView
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            mainArea
         }
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
@@ -41,88 +37,178 @@ struct ContentView: View {
                 }
 
                 if selectedGroupID != nil {
-                    Button(action: { showAddTimeline = true }) {
-                        Label("新建时间线", systemImage: "plus.circle")
+                    Button(action: {
+                        editingEvent = nil
+                        isAddingEvent = true
+                    }) {
+                        Label("新建事件", systemImage: "star.circle")
+                    }
+
+                    Button(action: { showTagManager = true }) {
+                        Label("管理标签", systemImage: "tag")
+                    }
+
+                    Button(action: {
+                        store.exportGroupToFile(id: selectedGroupID!)
+                    }) {
+                        Label("导出分组", systemImage: "square.and.arrow.up")
                     }
                 }
 
-                if selectedTimelineInfo != nil {
-                    Button(action: { showAddEvent = true }) {
-                        Label("新建事件", systemImage: "star.circle")
-                    }
+                Button(action: {
+                    store.importGroupFromFile()
+                }) {
+                    Label("导入", systemImage: "square.and.arrow.down")
+                }
+
+                Button(action: {
+                    store.exportAllDataToFile()
+                }) {
+                    Label("导出全部", systemImage: "arrow.up.doc")
                 }
             }
         }
         .sheet(isPresented: $showAddGroup) {
             GroupEditorView(mode: .add)
         }
-        .sheet(isPresented: $showAddTimeline) {
+        .sheet(isPresented: $showTagManager) {
             if let gid = selectedGroupID {
-                TimelineEditorView(mode: .add, groupID: gid)
+                TagManagerView(groupID: gid)
             }
         }
-        .sheet(isPresented: $showAddEvent) {
-            if let info = selectedTimelineInfo {
-                EventEditorView(mode: .add, groupID: info.groupID, timelineID: info.timelineID)
-            }
+        .onChange(of: selectedGroupID) {
+            editingEvent = nil
+            isAddingEvent = false
+            activeTagIDs.removeAll()
         }
     }
 
     @ViewBuilder
-    private var detailView: some View {
-        if let sel = selection {
-            switch sel {
-            case .group(let gid):
-                if let group = store.groups.first(where: { $0.id == gid }) {
+    private var mainArea: some View {
+        if let gid = selectedGroupID,
+           let group = store.groups.first(where: { $0.id == gid }) {
+            HSplitView {
+                // Left: timeline view
+                VStack(spacing: 0) {
+                    tagFilterBar(group: group)
+                    Divider()
+
+                    let filtered = store.filteredEvents(in: group, byTagIDs: activeTagIDs)
+                    let filteredGroup = TimelineGroup(id: group.id, name: group.name, tags: group.tags, events: filtered)
+
                     switch viewMode {
                     case .horizontal:
-                        HorizontalTimelineView(group: group)
+                        HorizontalTimelineView(group: filteredGroup) { event in
+                            isAddingEvent = false
+                            editingEvent = event
+                        }
                     case .vertical:
-                        VerticalTimelineView(group: group)
+                        VerticalTimelineView(group: filteredGroup) { event in
+                            isAddingEvent = false
+                            editingEvent = event
+                        }
                     }
-                } else {
-                    Text("选择一个分组或时间线")
-                        .foregroundStyle(.secondary)
                 }
-            case .timeline(let gid, let tid):
-                if let group = store.groups.first(where: { $0.id == gid }),
-                   let timeline = group.timelines.first(where: { $0.id == tid }) {
-                    let singleGroup = TimelineGroup(id: group.id, name: group.name, timelines: [timeline])
-                    switch viewMode {
-                    case .horizontal:
-                        HorizontalTimelineView(group: singleGroup)
-                    case .vertical:
-                        VerticalTimelineView(group: singleGroup)
-                    }
-                } else {
-                    Text("选择一个分组或时间线")
-                        .foregroundStyle(.secondary)
-                }
+                .frame(minWidth: 400)
+
+                // Right: event editor panel
+                eventEditorPanel(groupID: gid)
+                    .frame(minWidth: 300, idealWidth: 340, maxWidth: 400)
             }
         } else {
             VStack(spacing: 12) {
                 Image(systemName: "timeline.selection")
                     .font(.system(size: 48))
                     .foregroundStyle(.secondary)
-                Text("选择一个分组或时间线来查看")
+                Text("选择一个分组来查看")
                     .font(.title2)
                     .foregroundStyle(.secondary)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 
-    private var selectedGroupID: UUID? {
-        switch selection {
-        case .group(let id): return id
-        case .timeline(let gid, _): return gid
-        case nil: return nil
+    @ViewBuilder
+    private func eventEditorPanel(groupID: UUID) -> some View {
+        if isAddingEvent {
+            EventEditorView(
+                mode: .add,
+                groupID: groupID,
+                onDone: {
+                    isAddingEvent = false
+                },
+                onDelete: nil
+            )
+        } else if let event = editingEvent {
+            EventEditorView(
+                mode: .edit(event),
+                groupID: groupID,
+                onDone: {
+                    editingEvent = nil
+                },
+                onDelete: {
+                    store.deleteEvent(groupID: groupID, eventID: event.id)
+                    editingEvent = nil
+                }
+            )
+            .id(event.id)
+        } else {
+            VStack(spacing: 12) {
+                Image(systemName: "pencil.circle")
+                    .font(.system(size: 36))
+                    .foregroundStyle(.secondary)
+                Text("点击事件编辑，或新建事件")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 
-    private var selectedTimelineInfo: (groupID: UUID, timelineID: UUID)? {
-        if case .timeline(let gid, let tid) = selection {
-            return (gid, tid)
+    @ViewBuilder
+    private func tagFilterBar(group: TimelineGroup) -> some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 6) {
+                Text("筛选:")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                ForEach(group.tags) { tag in
+                    let isActive = activeTagIDs.contains(tag.id)
+                    Button(action: {
+                        if isActive {
+                            activeTagIDs.remove(tag.id)
+                        } else {
+                            activeTagIDs.insert(tag.id)
+                        }
+                    }) {
+                        Text(tag.name)
+                            .font(.caption)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(isActive ? Color(hex: tag.color).opacity(0.3) : Color.secondary.opacity(0.1))
+                            .foregroundStyle(isActive ? Color(hex: tag.color) : .secondary)
+                            .clipShape(Capsule())
+                            .overlay(
+                                Capsule().strokeBorder(
+                                    isActive ? Color(hex: tag.color) : Color.clear,
+                                    lineWidth: 1
+                                )
+                            )
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                if !activeTagIDs.isEmpty {
+                    Button("清除") {
+                        activeTagIDs.removeAll()
+                    }
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                }
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 8)
         }
-        return nil
     }
 }
