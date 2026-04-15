@@ -43,7 +43,9 @@ struct VerticalTimelineView: View {
                         }
                     }
                     .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
+                .frame(maxWidth: .infinity)
             }
         }
     }

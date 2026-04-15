@@ -1,14 +1,14 @@
 import SwiftUI
 
 enum ViewMode: String, CaseIterable {
-    case horizontal = "水平"
     case vertical = "垂直"
+    case horizontal = "水平"
 }
 
 struct ContentView: View {
     @EnvironmentObject var store: DataStore
     @State private var selectedGroupID: UUID?
-    @State private var viewMode: ViewMode = .horizontal
+    @State private var viewMode: ViewMode = .vertical
     @State private var showAddGroup = false
     @State private var showTagManager = false
     @State private var activeTagIDs: Set<UUID> = []
@@ -87,7 +87,7 @@ struct ContentView: View {
     private var mainArea: some View {
         if let gid = selectedGroupID,
            let group = store.groups.first(where: { $0.id == gid }) {
-            HSplitView {
+            HStack(spacing: 0) {
                 // Left: timeline view
                 VStack(spacing: 0) {
                     tagFilterBar(group: group)
@@ -109,11 +109,13 @@ struct ContentView: View {
                         }
                     }
                 }
-                .frame(minWidth: 400)
+                .frame(maxWidth: .infinity)
+
+                Divider()
 
                 // Right: event editor panel
                 eventEditorPanel(groupID: gid)
-                    .frame(minWidth: 300, idealWidth: 340, maxWidth: 400)
+                    .frame(width: 320)
             }
         } else {
             VStack(spacing: 12) {
@@ -167,48 +169,56 @@ struct ContentView: View {
 
     @ViewBuilder
     private func tagFilterBar(group: TimelineGroup) -> some View {
-        ScrollView(.horizontal, showsIndicators: false) {
+        if !group.tags.isEmpty {
             HStack(spacing: 6) {
                 Text("筛选:")
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
                 ForEach(group.tags) { tag in
-                    let isActive = activeTagIDs.contains(tag.id)
-                    Button(action: {
-                        if isActive {
-                            activeTagIDs.remove(tag.id)
-                        } else {
-                            activeTagIDs.insert(tag.id)
-                        }
-                    }) {
-                        Text(tag.name)
-                            .font(.caption)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(isActive ? Color(hex: tag.color).opacity(0.3) : Color.secondary.opacity(0.1))
-                            .foregroundStyle(isActive ? Color(hex: tag.color) : .secondary)
-                            .clipShape(Capsule())
-                            .overlay(
-                                Capsule().strokeBorder(
-                                    isActive ? Color(hex: tag.color) : Color.clear,
-                                    lineWidth: 1
-                                )
-                            )
-                    }
-                    .buttonStyle(.plain)
+                    tagChip(tag: tag)
                 }
 
                 if !activeTagIDs.isEmpty {
-                    Button("清除") {
-                        activeTagIDs.removeAll()
+                    Button(action: { activeTagIDs.removeAll() }) {
+                        Text("清除")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                     }
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .buttonStyle(.borderless)
                 }
+
+                Spacer()
             }
             .padding(.horizontal)
             .padding(.vertical, 8)
         }
+    }
+
+    @ViewBuilder
+    private func tagChip(tag: Tag) -> some View {
+        let isActive = activeTagIDs.contains(tag.id)
+        Button(action: {
+            if activeTagIDs.contains(tag.id) {
+                activeTagIDs.remove(tag.id)
+            } else {
+                activeTagIDs.insert(tag.id)
+            }
+        }) {
+            Text(tag.name)
+                .font(.caption)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(isActive ? Color(hex: tag.color).opacity(0.3) : Color.secondary.opacity(0.1))
+                .foregroundStyle(isActive ? Color(hex: tag.color) : .secondary)
+                .clipShape(Capsule())
+                .overlay(
+                    Capsule().strokeBorder(
+                        isActive ? Color(hex: tag.color) : Color.clear,
+                        lineWidth: 1
+                    )
+                )
+        }
+        .buttonStyle(.borderless)
     }
 }
