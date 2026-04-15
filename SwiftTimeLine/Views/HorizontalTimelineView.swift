@@ -155,11 +155,12 @@ struct HorizontalTimelineView: View {
                     let x = xPosition(for: event.date)
                     let isHovered = hoveredEventID == event.id
                     let dotSize: CGFloat = 10
+                    let dotColor = Color(hex: event.color)
 
                     Circle()
-                        .fill(color)
+                        .fill(dotColor)
                         .frame(width: dotSize, height: dotSize)
-                        .shadow(color: color.opacity(0.4), radius: isHovered ? 5 : 3)
+                        .shadow(color: dotColor.opacity(0.4), radius: isHovered ? 5 : 3)
                         .scaleEffect(isHovered ? 1.4 : 1.0)
                         .animation(.easeOut(duration: 0.15), value: isHovered)
                         .offset(x: x - dotSize / 2, y: rowHeight / 2 - dotSize / 2)

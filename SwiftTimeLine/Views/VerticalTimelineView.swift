@@ -87,7 +87,7 @@ struct VerticalTimelineView: View {
 
     @ViewBuilder
     private func eventCard(event: TimelineEvent) -> some View {
-        let eventColor = primaryColor(for: event)
+        let eventColor = Color(hex: event.color)
         VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Text(event.title)
