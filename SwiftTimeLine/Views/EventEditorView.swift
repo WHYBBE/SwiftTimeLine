@@ -61,9 +61,13 @@ struct EventEditorView: View {
                         Text("描述")
                             .font(.caption.bold())
                             .foregroundStyle(.secondary)
-                        TextField("事件描述", text: $eventDescription, axis: .vertical)
-                            .textFieldStyle(.roundedBorder)
-                            .lineLimit(3...6)
+                        TextEditor(text: $eventDescription)
+                            .font(.body)
+                            .frame(minHeight: 80, maxHeight: 160)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 5)
+                                    .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
+                            )
                     }
 
                     VStack(alignment: .leading, spacing: 6) {
@@ -103,6 +107,18 @@ struct EventEditorView: View {
                             .font(.caption.bold())
                             .foregroundStyle(.secondary)
                         tagSelectionView
+                    }
+
+                    if case .edit(let event) = mode {
+                        Divider()
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("创建于 \(formatTimestamp(event.createdAt))")
+                                .font(.caption2)
+                                .foregroundStyle(.tertiary)
+                            Text("修改于 \(formatTimestamp(event.modifiedAt))")
+                                .font(.caption2)
+                                .foregroundStyle(.tertiary)
+                        }
                     }
                 }
                 .padding()
@@ -197,6 +213,7 @@ struct EventEditorView: View {
             updated.date = finalDate
             updated.color = selectedColor
             updated.tagIDs = Array(selectedTagIDs)
+            updated.modifiedAt = Date()
             store.updateEvent(groupID: groupID, event: updated)
         } else {
             let event = TimelineEvent(
@@ -209,6 +226,13 @@ struct EventEditorView: View {
             store.addEvent(groupID: groupID, event: event)
         }
         onDone()
+    }
+
+    private func formatTimestamp(_ date: Date) -> String {
+        let fmt = DateFormatter()
+        fmt.dateStyle = .medium
+        fmt.timeStyle = .short
+        return fmt.string(from: date)
     }
 }
 
