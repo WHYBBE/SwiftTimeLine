@@ -54,18 +54,7 @@ struct TagManagerView: View {
                         .textFieldStyle(.roundedBorder)
                         .frame(maxWidth: 160)
 
-                    HStack(spacing: 4) {
-                        ForEach(presetColors, id: \.hex) { preset in
-                            Circle()
-                                .fill(Color(hex: preset.hex))
-                                .frame(width: 18, height: 18)
-                                .overlay(
-                                    Circle().strokeBorder(.white, lineWidth: newTagColor == preset.hex ? 2 : 0)
-                                )
-                                .shadow(color: newTagColor == preset.hex ? Color(hex: preset.hex) : .clear, radius: 2)
-                                .onTapGesture { newTagColor = preset.hex }
-                        }
-                    }
+                    ColorPickerField(selectedColor: $newTagColor, dotSize: 18)
 
                     Button("添加") {
                         let name = newTagName.trimmingCharacters(in: .whitespaces)
@@ -110,18 +99,7 @@ private struct TagEditSheet: View {
             Form {
                 TextField("名称", text: $name)
                 LabeledContent("颜色") {
-                    HStack(spacing: 4) {
-                        ForEach(presetColors, id: \.hex) { preset in
-                            Circle()
-                                .fill(Color(hex: preset.hex))
-                                .frame(width: 18, height: 18)
-                                .overlay(
-                                    Circle().strokeBorder(.white, lineWidth: color == preset.hex ? 2 : 0)
-                                )
-                                .shadow(color: color == preset.hex ? Color(hex: preset.hex) : .clear, radius: 2)
-                                .onTapGesture { color = preset.hex }
-                        }
-                    }
+                    ColorPickerField(selectedColor: $color, dotSize: 18)
                 }
             }
             .formStyle(.grouped)

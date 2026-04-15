@@ -88,18 +88,7 @@ struct EventEditorView: View {
                         Text("颜色")
                             .font(.caption.bold())
                             .foregroundStyle(.secondary)
-                        HStack(spacing: 6) {
-                            ForEach(presetColors, id: \.hex) { preset in
-                                Circle()
-                                    .fill(Color(hex: preset.hex))
-                                    .frame(width: 20, height: 20)
-                                    .overlay(
-                                        Circle().strokeBorder(.white, lineWidth: selectedColor == preset.hex ? 2 : 0)
-                                    )
-                                    .shadow(color: selectedColor == preset.hex ? Color(hex: preset.hex) : .clear, radius: 3)
-                                    .onTapGesture { selectedColor = preset.hex }
-                            }
-                        }
+                        ColorPickerField(selectedColor: $selectedColor)
                     }
 
                     VStack(alignment: .leading, spacing: 6) {
