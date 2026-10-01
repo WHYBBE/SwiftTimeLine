@@ -175,7 +175,7 @@
 				A10006 /* HorizontalTimelineView.swift in Sources */,
 				A10007 /* VerticalTimelineView.swift in Sources */,
 				A10008 /* EventEditorView.swift in Sources */,
-				A10009 /* TimelineEditorView.swift in Sources */,
+				A10009 /* TagManagerView.swift in Sources */,
 				A1000A /* GroupEditorView.swift in Sources */,
 				A1000B /* ColorUtils.swift in Sources */,
 			);
