@@ -1,44 +1,58 @@
 import Foundation
 import SwiftUI
-import AppKit
 
 @MainActor
 @Observable
 final class DataStore {
     var groups: [TimelineGroup] = []
+    var lastError: String?
 
     private let fileURL: URL
 
-    init() {
-        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let dir = docs.appendingPathComponent("SwiftTimeLine", isDirectory: true)
-        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        fileURL = dir.appendingPathComponent("data.json")
+    init(fileURL: URL? = nil) {
+        if let fileURL {
+            self.fileURL = fileURL
+        } else {
+            let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+            let dir = docs.appendingPathComponent("SwiftTimeLine", isDirectory: true)
+            try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+            self.fileURL = dir.appendingPathComponent("data.json")
+        }
         load()
+    }
+
+    // MARK: - Coding
+
+    private static func makeEncoder() -> JSONEncoder {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        return encoder
+    }
+
+    private static func makeDecoder() -> JSONDecoder {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return decoder
     }
 
     func load() {
         guard FileManager.default.fileExists(atPath: fileURL.path) else { return }
         do {
             let data = try Data(contentsOf: fileURL)
-            let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
-            let appData = try decoder.decode(AppData.self, from: data)
-            groups = appData.groups
+            groups = try Self.makeDecoder().decode(AppData.self, from: data).groups
         } catch {
-            print("Failed to load: \(error)")
+            lastError = "加载失败：\(error.localizedDescription)"
         }
     }
 
     func save() {
         do {
-            let encoder = JSONEncoder()
-            encoder.dateEncodingStrategy = .iso8601
-            encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-            let data = try encoder.encode(AppData(groups: groups))
+            let data = try Self.makeEncoder().encode(AppData(groups: groups))
             try data.write(to: fileURL, options: .atomic)
+            lastError = nil
         } catch {
-            print("Failed to save: \(error)")
+            lastError = "保存失败：\(error.localizedDescription)"
         }
     }
 
@@ -120,37 +134,22 @@ final class DataStore {
         groups.first { $0.id == groupID }?.tags ?? []
     }
 
-    func tag(inGroup groupID: UUID, for id: UUID) -> Tag? {
-        groups.first { $0.id == groupID }?.tags.first { $0.id == id }
-    }
-
-    func tags(inGroup groupID: UUID, for ids: [UUID]) -> [Tag] {
-        let groupTags = groups.first { $0.id == groupID }?.tags ?? []
-        return ids.compactMap { id in groupTags.first { $0.id == id } }
-    }
-
-    func filteredEvents(in group: TimelineGroup, byTagIDs tagIDs: Set<UUID>) -> [TimelineEvent] {
-        if tagIDs.isEmpty { return group.events }
-        return group.events.filter { event in
-            !event.tagIDs.filter { tagIDs.contains($0) }.isEmpty
-        }
-    }
-
     // MARK: - Export / Import
 
-    func exportGroup(id: UUID) -> Data? {
+    func exportGroupData(id: UUID) -> Data? {
         guard let group = groups.first(where: { $0.id == id }) else { return nil }
-        let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-        return try? encoder.encode(group)
+        return try? Self.makeEncoder().encode(group)
     }
 
+    func exportAllData() -> Data? {
+        try? Self.makeEncoder().encode(AppData(groups: groups))
+    }
+
+    @discardableResult
     func importGroup(from data: Data) -> Bool {
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        guard let imported = try? decoder.decode(TimelineGroup.self, from: data) else { return false }
-        // Assign new ID to avoid conflicts
+        guard let imported = try? Self.makeDecoder().decode(TimelineGroup.self, from: data) else {
+            return false
+        }
         var newGroup = imported
         newGroup.id = UUID()
         groups.append(newGroup)
@@ -158,57 +157,23 @@ final class DataStore {
         return true
     }
 
-    func exportGroupToFile(id: UUID) {
-        guard let data = exportGroup(id: id),
-              let group = groups.first(where: { $0.id == id }) else { return }
-        let panel = NSSavePanel()
-        panel.nameFieldStringValue = "\(group.name).json"
-        panel.allowedContentTypes = [.json]
-        panel.canCreateDirectories = true
-        if panel.runModal() == .OK, let url = panel.url {
-            try? data.write(to: url, options: .atomic)
-        }
-    }
-
-    func importGroupFromFile() {
-        let panel = NSOpenPanel()
-        panel.allowedContentTypes = [.json]
-        panel.allowsMultipleSelection = false
-        panel.canChooseDirectories = false
-        if panel.runModal() == .OK, let url = panel.url {
-            if let data = try? Data(contentsOf: url) {
-                // Try single group first, then full AppData
-                if importGroup(from: data) { return }
-                _ = importAllData(from: data)
-            }
-        }
-    }
-
-    // MARK: - Export / Import All Data
-
-    func exportAllDataToFile() {
-        let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-        guard let data = try? encoder.encode(AppData(groups: groups)) else { return }
-        let panel = NSSavePanel()
-        panel.nameFieldStringValue = "SwiftTimeLine_全部数据.json"
-        panel.allowedContentTypes = [.json]
-        panel.canCreateDirectories = true
-        if panel.runModal() == .OK, let url = panel.url {
-            try? data.write(to: url, options: .atomic)
-        }
-    }
-
+    @discardableResult
     func importAllData(from data: Data) -> Bool {
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        guard let appData = try? decoder.decode(AppData.self, from: data) else { return false }
+        guard let appData = try? Self.makeDecoder().decode(AppData.self, from: data) else {
+            return false
+        }
         for var group in appData.groups {
             group.id = UUID()
             groups.append(group)
         }
         save()
         return true
+    }
+
+    /// Import either a single group or a full data file.
+    @discardableResult
+    func importData(from data: Data) -> Bool {
+        if importGroup(from: data) { return true }
+        return importAllData(from: data)
     }
 }

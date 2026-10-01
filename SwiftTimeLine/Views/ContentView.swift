@@ -49,20 +49,28 @@ struct ContentView: View {
                     }
 
                     Button(action: {
-                        store.exportGroupToFile(id: selectedGroupID!)
+                        if let gid = selectedGroupID,
+                           let data = store.exportGroupData(id: gid),
+                           let group = store.groups.first(where: { $0.id == gid }) {
+                            FilePanels.save(data: data, suggestedName: "\(group.name).json")
+                        }
                     }) {
                         Label("导出分组", systemImage: "square.and.arrow.up")
                     }
                 }
 
                 Button(action: {
-                    store.importGroupFromFile()
+                    if let data = FilePanels.openJSON() {
+                        _ = store.importData(from: data)
+                    }
                 }) {
                     Label("导入", systemImage: "square.and.arrow.down")
                 }
 
                 Button(action: {
-                    store.exportAllDataToFile()
+                    if let data = store.exportAllData() {
+                        FilePanels.save(data: data, suggestedName: "SwiftTimeLine_全部数据.json")
+                    }
                 }) {
                     Label("导出全部", systemImage: "arrow.up.doc")
                 }
@@ -81,6 +89,14 @@ struct ContentView: View {
             isAddingEvent = false
             activeTagIDs.removeAll()
         }
+        .alert("出错了", isPresented: Binding(
+            get: { store.lastError != nil },
+            set: { if !$0 { store.lastError = nil } }
+        )) {
+            Button("好") { store.lastError = nil }
+        } message: {
+            Text(store.lastError ?? "")
+        }
     }
 
     @ViewBuilder
@@ -93,8 +109,7 @@ struct ContentView: View {
                     tagFilterBar(group: group)
                     Divider()
 
-                    let filtered = store.filteredEvents(in: group, byTagIDs: activeTagIDs)
-                    let filteredGroup = TimelineGroup(id: group.id, name: group.name, tags: group.tags, events: filtered)
+                    let filteredGroup = group.filtered(byTagIDs: activeTagIDs)
 
                     switch viewMode {
                     case .horizontal:
@@ -197,7 +212,6 @@ struct ContentView: View {
 
     @ViewBuilder
     private func tagChip(tag: Tag) -> some View {
-        let isActive = activeTagIDs.contains(tag.id)
         Button(action: {
             if activeTagIDs.contains(tag.id) {
                 activeTagIDs.remove(tag.id)
@@ -205,19 +219,7 @@ struct ContentView: View {
                 activeTagIDs.insert(tag.id)
             }
         }) {
-            Text(tag.name)
-                .font(.caption)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(isActive ? Color(hex: tag.color).opacity(0.3) : Color.secondary.opacity(0.1))
-                .foregroundStyle(isActive ? Color(hex: tag.color) : .secondary)
-                .clipShape(Capsule())
-                .overlay(
-                    Capsule().strokeBorder(
-                        isActive ? Color(hex: tag.color) : Color.clear,
-                        lineWidth: 1
-                    )
-                )
+            TagChip(tag: tag, isActive: activeTagIDs.contains(tag.id))
         }
         .buttonStyle(.borderless)
     }

@@ -1,14 +1,11 @@
 import SwiftUI
 
 struct VerticalTimelineView: View {
-    @Environment(DataStore.self) private var store
     let group: TimelineGroup
     let onSelectEvent: (TimelineEvent) -> Void
 
     private var groupedByDate: [(key: String, events: [TimelineEvent])] {
-        let fmt = DateFormatter()
-        fmt.dateFormat = "yyyy年M月"
-        let dict = Dictionary(grouping: group.events) { fmt.string(from: $0.date) }
+        let dict = Dictionary(grouping: group.events) { DateFormat.yearMonth.string(from: $0.date) }
         return dict.sorted { a, b in
             guard let da = a.value.first?.date, let db = b.value.first?.date else { return false }
             return da < db
@@ -93,7 +90,7 @@ struct VerticalTimelineView: View {
                 Text(event.title)
                     .font(.body.bold())
                 Spacer()
-                Text(formatDate(event.date))
+                Text(DateFormat.eventDate(event.date))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -109,17 +106,7 @@ struct VerticalTimelineView: View {
             if !eventTags.isEmpty {
                 HStack(spacing: 4) {
                     ForEach(eventTags) { tag in
-                        HStack(spacing: 3) {
-                            Circle()
-                                .fill(Color(hex: tag.color))
-                                .frame(width: 6, height: 6)
-                            Text(tag.name)
-                                .font(.caption2)
-                        }
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(Color(hex: tag.color).opacity(0.15))
-                        .clipShape(Capsule())
+                        TagChip(tag: tag)
                     }
                 }
             }
@@ -140,14 +127,5 @@ struct VerticalTimelineView: View {
             return Color(hex: tag.color)
         }
         return Color(hex: event.color)
-    }
-
-    private func formatDate(_ date: Date) -> String {
-        let cal = Calendar.current
-        let comps = cal.dateComponents([.hour, .minute], from: date)
-        let hasTime = (comps.hour ?? 0) != 0 || (comps.minute ?? 0) != 0
-        let fmt = DateFormatter()
-        fmt.dateFormat = hasTime ? "M月d日 HH:mm" : "M月d日"
-        return fmt.string(from: date)
     }
 }

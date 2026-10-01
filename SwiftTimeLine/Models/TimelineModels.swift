@@ -46,6 +46,15 @@ struct TimelineGroup: Identifiable, Codable, Hashable {
     var name: String
     var tags: [Tag] = []
     var events: [TimelineEvent] = []
+
+    func filtered(byTagIDs tagIDs: Set<UUID>) -> TimelineGroup {
+        guard !tagIDs.isEmpty else { return self }
+        var copy = self
+        copy.events = events.filter { event in
+            event.tagIDs.contains { tagIDs.contains($0) }
+        }
+        return copy
+    }
 }
 
 struct AppData: Codable {

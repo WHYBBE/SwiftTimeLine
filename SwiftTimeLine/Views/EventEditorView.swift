@@ -93,10 +93,10 @@ struct EventEditorView: View {
                     if let event = mode.editingValue {
                         Divider()
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("创建于 \(formatTimestamp(event.createdAt))")
+                            Text("创建于 \(DateFormat.mediumDateTime.string(from: event.createdAt))")
                                 .font(.caption2)
                                 .foregroundStyle(.tertiary)
-                            Text("修改于 \(formatTimestamp(event.modifiedAt))")
+                            Text("修改于 \(DateFormat.mediumDateTime.string(from: event.modifiedAt))")
                                 .font(.caption2)
                                 .foregroundStyle(.tertiary)
                         }
@@ -132,31 +132,14 @@ struct EventEditorView: View {
         } else {
             FlowLayout(spacing: 4) {
                 ForEach(groupTags) { tag in
-                    let isSelected = selectedTagIDs.contains(tag.id)
                     Button(action: {
-                        if isSelected {
+                        if selectedTagIDs.contains(tag.id) {
                             selectedTagIDs.remove(tag.id)
                         } else {
                             selectedTagIDs.insert(tag.id)
                         }
                     }) {
-                        HStack(spacing: 4) {
-                            Circle()
-                                .fill(Color(hex: tag.color))
-                                .frame(width: 8, height: 8)
-                            Text(tag.name)
-                                .font(.caption)
-                        }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(isSelected ? Color(hex: tag.color).opacity(0.25) : Color.secondary.opacity(0.1))
-                        .clipShape(Capsule())
-                        .overlay(
-                            Capsule().strokeBorder(
-                                isSelected ? Color(hex: tag.color) : Color.clear,
-                                lineWidth: 1
-                            )
-                        )
+                        TagChip(tag: tag, isSelected: selectedTagIDs.contains(tag.id))
                     }
                     .buttonStyle(.plain)
                 }
@@ -206,13 +189,6 @@ struct EventEditorView: View {
             store.addEvent(groupID: groupID, event: event)
         }
         onDone()
-    }
-
-    private func formatTimestamp(_ date: Date) -> String {
-        let fmt = DateFormatter()
-        fmt.dateStyle = .medium
-        fmt.timeStyle = .short
-        return fmt.string(from: date)
     }
 }
 

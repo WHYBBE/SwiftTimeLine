@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct HorizontalTimelineView: View {
-    @Environment(DataStore.self) private var store
     let group: TimelineGroup
     let onSelectEvent: (TimelineEvent) -> Void
 
@@ -210,18 +209,10 @@ struct HorizontalTimelineView: View {
     // MARK: - Formatting
 
     private func formatAxisDate(_ date: Date) -> String {
-        let fmt = DateFormatter()
-        fmt.dateFormat = "MM/dd"
-        return fmt.string(from: date)
+        DateFormat.monthDay.string(from: date)
     }
 
     private func formatTooltipDate(_ date: Date) -> String {
-        let cal = Calendar.current
-        let comps = cal.dateComponents([.hour, .minute], from: date)
-        let hasTime = (comps.hour ?? 0) != 0 || (comps.minute ?? 0) != 0
-        let fmt = DateFormatter()
-        fmt.dateStyle = .medium
-        fmt.timeStyle = hasTime ? .short : .none
-        return fmt.string(from: date)
+        DateFormat.tooltip(date)
     }
 }

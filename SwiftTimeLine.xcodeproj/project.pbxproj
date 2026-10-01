@@ -19,6 +19,9 @@
 		A1000A /* GroupEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000A; };
 		A1000B /* ColorUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000B; };
 		A1000C /* EditorMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000C; };
+		A1000D /* DateFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000D; };
+		A1000E /* FilePanels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000E; };
+		A1000F /* TagChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000F; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +37,9 @@
 		B1000A /* GroupEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupEditorView.swift; sourceTree = "<group>"; };
 		B1000B /* ColorUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorUtils.swift; sourceTree = "<group>"; };
 		B1000C /* EditorMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorMode.swift; sourceTree = "<group>"; };
+		B1000D /* DateFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateFormat.swift; sourceTree = "<group>"; };
+		B1000E /* FilePanels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilePanels.swift; sourceTree = "<group>"; };
+		B1000F /* TagChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagChip.swift; sourceTree = "<group>"; };
 		C10001 /* SwiftTimeLine.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftTimeLine.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -87,6 +93,7 @@
 				B10008 /* EventEditorView.swift */,
 				B10009 /* TagManagerView.swift */,
 				B1000A /* GroupEditorView.swift */,
+				B1000F /* TagChip.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -103,6 +110,8 @@
 			isa = PBXGroup;
 			children = (
 				B1000B /* ColorUtils.swift */,
+				B1000D /* DateFormat.swift */,
+				B1000E /* FilePanels.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -182,6 +191,9 @@
 				A1000A /* GroupEditorView.swift in Sources */,
 				A1000B /* ColorUtils.swift in Sources */,
 				A1000C /* EditorMode.swift in Sources */,
+				A1000D /* DateFormat.swift in Sources */,
+				A1000E /* FilePanels.swift in Sources */,
+				A1000F /* TagChip.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
