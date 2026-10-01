@@ -1,11 +1,13 @@
 import SwiftUI
 
 struct VerticalTimelineView: View {
+    @Environment(\.loc) private var loc
     let group: TimelineGroup
     let onSelectEvent: (TimelineEvent) -> Void
+    let onAddEvent: () -> Void
 
     private var groupedByDate: [(key: String, events: [TimelineEvent])] {
-        let dict = Dictionary(grouping: group.events) { DateFormat.yearMonth.string(from: $0.date) }
+        let dict = Dictionary(grouping: group.events) { DateFormat.yearMonth($0.date, language: loc.language) }
         return dict.sorted { a, b in
             guard let da = a.value.first?.date, let db = b.value.first?.date else { return false }
             return da < db
@@ -18,6 +20,9 @@ struct VerticalTimelineView: View {
                 Text(group.name)
                     .font(.title2.bold())
                 Spacer()
+                Button(action: onAddEvent) {
+                    Label(loc(.newEvent), systemImage: "plus")
+                }
             }
             .padding()
 
@@ -28,7 +33,7 @@ struct VerticalTimelineView: View {
                     Image(systemName: "calendar.badge.plus")
                         .font(.system(size: 36))
                         .foregroundStyle(.secondary)
-                    Text("暂无事件")
+                    Text(loc(.noEvents))
                         .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -90,7 +95,7 @@ struct VerticalTimelineView: View {
                 Text(event.title)
                     .font(.body.bold())
                 Spacer()
-                Text(DateFormat.eventDate(event.date))
+                Text(DateFormat.eventDate(event.date, language: loc.language))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

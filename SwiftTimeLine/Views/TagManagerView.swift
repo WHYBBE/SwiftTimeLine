@@ -2,6 +2,7 @@ import SwiftUI
 
 struct TagManagerView: View {
     @Environment(DataStore.self) private var store
+    @Environment(\.loc) private var loc
     @Environment(\.dismiss) private var dismiss
     let groupID: UUID
 
@@ -15,7 +16,7 @@ struct TagManagerView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Text("管理标签")
+            Text(loc(.manageTags))
                 .font(.headline)
                 .padding()
 
@@ -46,17 +47,17 @@ struct TagManagerView: View {
             Divider()
 
             VStack(spacing: 10) {
-                Text("添加新标签")
+                Text(loc(.addNewTag))
                     .font(.subheadline.bold())
 
                 HStack(spacing: 8) {
-                    TextField("标签名称", text: $newTagName)
+                    TextField(loc(.tagNamePlaceholder), text: $newTagName)
                         .textFieldStyle(.roundedBorder)
                         .frame(maxWidth: 160)
 
                     ColorPickerField(selectedColor: $newTagColor, dotSize: 18)
 
-                    Button("添加") {
+                    Button(loc(.add)) {
                         let name = newTagName.trimmingCharacters(in: .whitespaces)
                         guard !name.isEmpty else { return }
                         store.addTag(groupID: groupID, name: name, color: newTagColor)
@@ -71,7 +72,7 @@ struct TagManagerView: View {
 
             HStack {
                 Spacer()
-                Button("完成") { dismiss() }
+                Button(loc(.done)) { dismiss() }
                     .keyboardShortcut(.defaultAction)
             }
             .padding()
@@ -85,6 +86,7 @@ struct TagManagerView: View {
 
 private struct TagEditSheet: View {
     @Environment(DataStore.self) private var store
+    @Environment(\.loc) private var loc
     @Environment(\.dismiss) private var dismiss
     let groupID: UUID
     let tag: Tag
@@ -93,12 +95,12 @@ private struct TagEditSheet: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            Text("编辑标签")
+            Text(loc(.editTag))
                 .font(.headline)
 
             Form {
-                TextField("名称", text: $name)
-                LabeledContent("颜色") {
+                TextField(loc(.name), text: $name)
+                LabeledContent(loc(.color)) {
                     ColorPickerField(selectedColor: $color, dotSize: 18)
                 }
             }
@@ -106,9 +108,9 @@ private struct TagEditSheet: View {
 
             HStack {
                 Spacer()
-                Button("取消") { dismiss() }
+                Button(loc(.cancel)) { dismiss() }
                     .keyboardShortcut(.cancelAction)
-                Button("保存") {
+                Button(loc(.save)) {
                     var updated = tag
                     updated.name = name.trimmingCharacters(in: .whitespaces)
                     updated.color = color

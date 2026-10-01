@@ -47,15 +47,15 @@ extension NSColor {
     }
 }
 
-let presetColors: [(name: String, hex: String)] = [
-    ("蓝色", "#4A90D9"),
-    ("红色", "#E74C3C"),
-    ("绿色", "#2ECC71"),
-    ("橙色", "#F39C12"),
-    ("紫色", "#9B59B6"),
-    ("青色", "#1ABC9C"),
-    ("粉色", "#E91E63"),
-    ("灰色", "#95A5A6"),
+let presetColors: [String] = [
+    "#4A90D9",
+    "#E74C3C",
+    "#2ECC71",
+    "#F39C12",
+    "#9B59B6",
+    "#1ABC9C",
+    "#E91E63",
+    "#95A5A6",
 ]
 
 func randomColorHex() -> String {
@@ -76,6 +76,7 @@ extension NSColor {
 }
 
 struct ColorPickerField: View {
+    @Environment(\.loc) private var loc
     @Binding var selectedColor: String
     var dotSize: CGFloat = 20
 
@@ -83,15 +84,15 @@ struct ColorPickerField: View {
 
     var body: some View {
         HStack(spacing: 6) {
-            ForEach(presetColors, id: \.hex) { preset in
+            ForEach(presetColors, id: \.self) { hex in
                 Circle()
-                    .fill(Color(hex: preset.hex))
+                    .fill(Color(hex: hex))
                     .frame(width: dotSize, height: dotSize)
                     .overlay(
-                        Circle().strokeBorder(.white, lineWidth: selectedColor == preset.hex ? 2 : 0)
+                        Circle().strokeBorder(.white, lineWidth: selectedColor == hex ? 2 : 0)
                     )
-                    .shadow(color: selectedColor == preset.hex ? Color(hex: preset.hex) : .clear, radius: 3)
-                    .onTapGesture { selectedColor = preset.hex }
+                    .shadow(color: selectedColor == hex ? Color(hex: hex) : .clear, radius: 3)
+                    .onTapGesture { selectedColor = hex }
             }
 
             Button(action: { selectedColor = randomColorHex() }) {
@@ -100,7 +101,7 @@ struct ColorPickerField: View {
                     .frame(width: dotSize, height: dotSize)
             }
             .buttonStyle(.borderless)
-            .help("随机颜色")
+            .help(loc(.randomColor))
 
             ColorPicker("", selection: $customColor, supportsOpacity: false)
                 .labelsHidden()

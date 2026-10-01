@@ -1,8 +1,10 @@
 import SwiftUI
 
 struct HorizontalTimelineView: View {
+    @Environment(\.loc) private var loc
     let group: TimelineGroup
     let onSelectEvent: (TimelineEvent) -> Void
+    let onAddEvent: () -> Void
 
     @State private var scale: CGFloat = 1.0
     @State private var hoveredEventID: UUID?
@@ -31,7 +33,7 @@ struct HorizontalTimelineView: View {
 
         let untagged = group.events.filter { !claimed.contains($0.id) }
         if !untagged.isEmpty {
-            result.append((label: "未分类", color: .secondary, events: untagged))
+            result.append((label: loc(.uncategorized), color: .secondary, events: untagged))
         }
 
         return result
@@ -43,6 +45,9 @@ struct HorizontalTimelineView: View {
                 Text(group.name)
                     .font(.title2.bold())
                 Spacer()
+                Button(action: onAddEvent) {
+                    Label(loc(.newEvent), systemImage: "plus")
+                }
                 HStack(spacing: 4) {
                     Button(action: { withAnimation { scale = max(0.3, scale - 0.2) } }) {
                         Image(systemName: "minus.magnifyingglass")
@@ -66,7 +71,7 @@ struct HorizontalTimelineView: View {
                     Image(systemName: "calendar.badge.plus")
                         .font(.system(size: 36))
                         .foregroundStyle(.secondary)
-                    Text("暂无事件")
+                    Text(loc(.noEvents))
                         .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -209,10 +214,10 @@ struct HorizontalTimelineView: View {
     // MARK: - Formatting
 
     private func formatAxisDate(_ date: Date) -> String {
-        DateFormat.monthDay.string(from: date)
+        DateFormat.monthDay(date, language: loc.language)
     }
 
     private func formatTooltipDate(_ date: Date) -> String {
-        DateFormat.tooltip(date)
+        DateFormat.tooltip(date, language: loc.language)
     }
 }

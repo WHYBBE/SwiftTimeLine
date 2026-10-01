@@ -2,6 +2,7 @@ import SwiftUI
 
 struct EventEditorView: View {
     @Environment(DataStore.self) private var store
+    @Environment(\.loc) private var loc
 
     let mode: EditorMode<TimelineEvent>
     let groupID: UUID
@@ -25,7 +26,7 @@ struct EventEditorView: View {
         VStack(spacing: 0) {
             // Header
             HStack {
-                Text(isEditing ? "编辑事件" : "新建事件")
+                Text(isEditing ? loc(.editEvent) : loc(.newEvent))
                     .font(.headline)
                 Spacer()
                 Button(action: onDone) {
@@ -42,15 +43,15 @@ struct EventEditorView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("标题")
+                        Text(loc(.title))
                             .font(.caption.bold())
                             .foregroundStyle(.secondary)
-                        TextField("事件标题", text: $title)
+                        TextField(loc(.eventTitlePlaceholder), text: $title)
                             .textFieldStyle(.roundedBorder)
                     }
 
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("描述")
+                        Text(loc(.description))
                             .font(.caption.bold())
                             .foregroundStyle(.secondary)
                         TextEditor(text: $eventDescription)
@@ -63,28 +64,28 @@ struct EventEditorView: View {
                     }
 
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("日期")
+                        Text(loc(.date))
                             .font(.caption.bold())
                             .foregroundStyle(.secondary)
                         HStack(spacing: 8) {
                             DatePicker("", selection: $date,
                                        displayedComponents: includeTime ? [.date, .hourAndMinute] : [.date])
                                 .labelsHidden()
-                            Toggle("包含时间", isOn: $includeTime)
+                            Toggle(loc(.includeTime), isOn: $includeTime)
                                 .toggleStyle(.checkbox)
                                 .font(.caption)
                         }
                     }
 
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("颜色")
+                        Text(loc(.color))
                             .font(.caption.bold())
                             .foregroundStyle(.secondary)
                         ColorPickerField(selectedColor: $selectedColor)
                     }
 
                     VStack(alignment: .leading, spacing: 6) {
-                        Text("标签")
+                        Text(loc(.tags))
                             .font(.caption.bold())
                             .foregroundStyle(.secondary)
                         tagSelectionView
@@ -93,10 +94,10 @@ struct EventEditorView: View {
                     if let event = mode.editingValue {
                         Divider()
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("创建于 \(DateFormat.mediumDateTime.string(from: event.createdAt))")
+                            Text(loc.format(.createdAt, DateFormat.mediumDateTime(event.createdAt, language: loc.language)))
                                 .font(.caption2)
                                 .foregroundStyle(.tertiary)
-                            Text("修改于 \(DateFormat.mediumDateTime.string(from: event.modifiedAt))")
+                            Text(loc.format(.modifiedAt, DateFormat.mediumDateTime(event.modifiedAt, language: loc.language)))
                                 .font(.caption2)
                                 .foregroundStyle(.tertiary)
                         }
@@ -110,10 +111,10 @@ struct EventEditorView: View {
             // Actions
             HStack {
                 if let onDelete = onDelete {
-                    Button("删除", role: .destructive, action: onDelete)
+                    Button(loc(.delete), role: .destructive, action: onDelete)
                 }
                 Spacer()
-                Button(isEditing ? "保存" : "创建") { save() }
+                Button(isEditing ? loc(.save) : loc(.create)) { save() }
                     .keyboardShortcut(.defaultAction)
                     .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
             }
@@ -126,7 +127,7 @@ struct EventEditorView: View {
     @ViewBuilder
     private var tagSelectionView: some View {
         if groupTags.isEmpty {
-            Text("暂无标签，请先在「管理标签」中创建")
+            Text(loc(.noTagsHint))
                 .font(.caption)
                 .foregroundStyle(.secondary)
         } else {

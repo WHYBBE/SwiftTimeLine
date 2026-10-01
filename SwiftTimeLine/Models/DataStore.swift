@@ -1,11 +1,16 @@
 import Foundation
 import SwiftUI
 
+struct AppError: Equatable {
+    var key: LKey
+    var detail: String
+}
+
 @MainActor
 @Observable
 final class DataStore {
     var groups: [TimelineGroup] = []
-    var lastError: String?
+    var lastError: AppError?
 
     private let fileURL: URL
 
@@ -42,7 +47,7 @@ final class DataStore {
             let data = try Data(contentsOf: fileURL)
             groups = try Self.makeDecoder().decode(AppData.self, from: data).groups
         } catch {
-            lastError = "加载失败：\(error.localizedDescription)"
+            lastError = AppError(key: .loadFailed, detail: error.localizedDescription)
         }
     }
 
@@ -52,7 +57,7 @@ final class DataStore {
             try data.write(to: fileURL, options: .atomic)
             lastError = nil
         } catch {
-            lastError = "保存失败：\(error.localizedDescription)"
+            lastError = AppError(key: .saveFailed, detail: error.localizedDescription)
         }
     }
 
@@ -175,5 +180,11 @@ final class DataStore {
     func importData(from data: Data) -> Bool {
         if importGroup(from: data) { return true }
         return importAllData(from: data)
+    }
+
+    /// Remove all groups, events and tags.
+    func clearAll() {
+        groups.removeAll()
+        save()
     }
 }

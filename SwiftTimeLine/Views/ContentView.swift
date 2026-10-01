@@ -1,12 +1,27 @@
 import SwiftUI
 
 enum ViewMode: String, CaseIterable {
-    case vertical = "垂直"
-    case horizontal = "水平"
+    case vertical
+    case horizontal
+
+    var labelKey: LKey {
+        switch self {
+        case .vertical: .vertical
+        case .horizontal: .horizontal
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .vertical: "arrow.up.and.down"
+        case .horizontal: "arrow.left.and.right"
+        }
+    }
 }
 
 struct ContentView: View {
     @Environment(DataStore.self) private var store
+    @Environment(\.loc) private var loc
     @State private var selectedGroupID: UUID?
     @State private var viewMode: ViewMode = .vertical
     @State private var showAddGroup = false
@@ -24,55 +39,23 @@ struct ContentView: View {
         }
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
-                Picker("视图", selection: $viewMode) {
+                Picker(loc(.viewModeLabel), selection: $viewMode) {
                     ForEach(ViewMode.allCases, id: \.self) { mode in
-                        Text(mode.rawValue).tag(mode)
+                        Image(systemName: mode.symbol)
+                            .help(loc(mode.labelKey))
+                            .tag(mode)
                     }
                 }
                 .pickerStyle(.segmented)
-                .frame(width: 120)
+                .labelsHidden()
+                .frame(width: 88)
 
                 Button(action: { showAddGroup = true }) {
-                    Label("新建分组", systemImage: "folder.badge.plus")
+                    Label(loc(.newGroup), systemImage: "folder.badge.plus")
                 }
 
-                if selectedGroupID != nil {
-                    Button(action: {
-                        editingEvent = nil
-                        isAddingEvent = true
-                    }) {
-                        Label("新建事件", systemImage: "star.circle")
-                    }
-
-                    Button(action: { showTagManager = true }) {
-                        Label("管理标签", systemImage: "tag")
-                    }
-
-                    Button(action: {
-                        if let gid = selectedGroupID,
-                           let data = store.exportGroupData(id: gid),
-                           let group = store.groups.first(where: { $0.id == gid }) {
-                            FilePanels.save(data: data, suggestedName: "\(group.name).json")
-                        }
-                    }) {
-                        Label("导出分组", systemImage: "square.and.arrow.up")
-                    }
-                }
-
-                Button(action: {
-                    if let data = FilePanels.openJSON() {
-                        _ = store.importData(from: data)
-                    }
-                }) {
-                    Label("导入", systemImage: "square.and.arrow.down")
-                }
-
-                Button(action: {
-                    if let data = store.exportAllData() {
-                        FilePanels.save(data: data, suggestedName: "SwiftTimeLine_全部数据.json")
-                    }
-                }) {
-                    Label("导出全部", systemImage: "arrow.up.doc")
+                SettingsLink {
+                    Label(loc(.settings), systemImage: "gearshape")
                 }
             }
         }
@@ -89,13 +72,15 @@ struct ContentView: View {
             isAddingEvent = false
             activeTagIDs.removeAll()
         }
-        .alert("出错了", isPresented: Binding(
+        .alert(loc(.error), isPresented: Binding(
             get: { store.lastError != nil },
             set: { if !$0 { store.lastError = nil } }
         )) {
-            Button("好") { store.lastError = nil }
+            Button(loc(.ok)) { store.lastError = nil }
         } message: {
-            Text(store.lastError ?? "")
+            if let error = store.lastError {
+                Text(loc.format(error.key, error.detail))
+            }
         }
     }
 
@@ -116,11 +101,17 @@ struct ContentView: View {
                         HorizontalTimelineView(group: filteredGroup) { event in
                             isAddingEvent = false
                             editingEvent = event
+                        } onAddEvent: {
+                            editingEvent = nil
+                            isAddingEvent = true
                         }
                     case .vertical:
                         VerticalTimelineView(group: filteredGroup) { event in
                             isAddingEvent = false
                             editingEvent = event
+                        } onAddEvent: {
+                            editingEvent = nil
+                            isAddingEvent = true
                         }
                     }
                 }
@@ -137,7 +128,7 @@ struct ContentView: View {
                 Image(systemName: "timeline.selection")
                     .font(.system(size: 48))
                     .foregroundStyle(.secondary)
-                Text("选择一个分组来查看")
+                Text(loc(.selectGroupPrompt))
                     .font(.title2)
                     .foregroundStyle(.secondary)
             }
@@ -174,7 +165,7 @@ struct ContentView: View {
                 Image(systemName: "pencil.circle")
                     .font(.system(size: 36))
                     .foregroundStyle(.secondary)
-                Text("点击事件编辑，或新建事件")
+                Text(loc(.editEventPrompt))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -184,9 +175,9 @@ struct ContentView: View {
 
     @ViewBuilder
     private func tagFilterBar(group: TimelineGroup) -> some View {
-        if !group.tags.isEmpty {
-            HStack(spacing: 6) {
-                Text("筛选:")
+        HStack(spacing: 6) {
+            if !group.tags.isEmpty {
+                Text(loc(.filter))
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
@@ -196,18 +187,25 @@ struct ContentView: View {
 
                 if !activeTagIDs.isEmpty {
                     Button(action: { activeTagIDs.removeAll() }) {
-                        Text("清除")
+                        Text(loc(.clear))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                     .buttonStyle(.borderless)
                 }
-
-                Spacer()
             }
-            .padding(.horizontal)
-            .padding(.vertical, 8)
+
+            Spacer()
+
+            Button(action: { showTagManager = true }) {
+                Label(loc(.manageTags), systemImage: "tag")
+                    .font(.caption)
+            }
+            .buttonStyle(.borderless)
+            .help(loc(.manageTags))
         }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
     }
 
     @ViewBuilder

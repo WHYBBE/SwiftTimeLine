@@ -2,6 +2,7 @@ import SwiftUI
 
 struct GroupEditorView: View {
     @Environment(DataStore.self) private var store
+    @Environment(\.loc) private var loc
     @Environment(\.dismiss) private var dismiss
 
     let mode: EditorMode<TimelineGroup>
@@ -12,19 +13,19 @@ struct GroupEditorView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            Text(isEditing ? "编辑分组" : "新建分组")
+            Text(isEditing ? loc(.editGroup) : loc(.newGroup))
                 .font(.headline)
 
             Form {
-                TextField("分组名称", text: $name)
+                TextField(loc(.groupNamePlaceholder), text: $name)
             }
             .formStyle(.grouped)
 
             HStack {
                 Spacer()
-                Button("取消") { dismiss() }
+                Button(loc(.cancel)) { dismiss() }
                     .keyboardShortcut(.cancelAction)
-                Button(isEditing ? "保存" : "创建") { save() }
+                Button(isEditing ? loc(.save) : loc(.create)) { save() }
                     .keyboardShortcut(.defaultAction)
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
             }

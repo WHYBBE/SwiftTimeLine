@@ -22,6 +22,10 @@
 		A1000D /* DateFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000D; };
 		A1000E /* FilePanels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000E; };
 		A1000F /* TagChip.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000F; };
+		A1010 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1010; };
+		A1011 /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1011; };
+		A1012 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1012; };
+		A1013 /* AppEnvironmentRoot.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1013; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,6 +44,10 @@
 		B1000D /* DateFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateFormat.swift; sourceTree = "<group>"; };
 		B1000E /* FilePanels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilePanels.swift; sourceTree = "<group>"; };
 		B1000F /* TagChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagChip.swift; sourceTree = "<group>"; };
+		B1010 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		B1011 /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
+		B1012 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		B1013 /* AppEnvironmentRoot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironmentRoot.swift; sourceTree = "<group>"; };
 		C10001 /* SwiftTimeLine.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftTimeLine.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -79,6 +87,7 @@
 				B10002 /* TimelineModels.swift */,
 				B10003 /* DataStore.swift */,
 				B1000C /* EditorMode.swift */,
+				B1010 /* AppSettings.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -94,6 +103,8 @@
 				B10009 /* TagManagerView.swift */,
 				B1000A /* GroupEditorView.swift */,
 				B1000F /* TagChip.swift */,
+				B1012 /* SettingsView.swift */,
+				B1013 /* AppEnvironmentRoot.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -112,6 +123,7 @@
 				B1000B /* ColorUtils.swift */,
 				B1000D /* DateFormat.swift */,
 				B1000E /* FilePanels.swift */,
+				B1011 /* Localization.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -194,6 +206,10 @@
 				A1000D /* DateFormat.swift in Sources */,
 				A1000E /* FilePanels.swift in Sources */,
 				A1000F /* TagChip.swift in Sources */,
+				A1010 /* AppSettings.swift in Sources */,
+				A1011 /* Localization.swift in Sources */,
+				A1012 /* SettingsView.swift in Sources */,
+				A1013 /* AppEnvironmentRoot.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
