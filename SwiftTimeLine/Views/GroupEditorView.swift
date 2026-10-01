@@ -1,22 +1,14 @@
 import SwiftUI
 
-enum GroupEditorMode {
-    case add
-    case edit(TimelineGroup)
-}
-
 struct GroupEditorView: View {
-    @EnvironmentObject var store: DataStore
+    @Environment(DataStore.self) private var store
     @Environment(\.dismiss) private var dismiss
 
-    let mode: GroupEditorMode
+    let mode: EditorMode<TimelineGroup>
 
     @State private var name: String = ""
 
-    private var isEditing: Bool {
-        if case .edit = mode { return true }
-        return false
-    }
+    private var isEditing: Bool { mode.isEditing }
 
     var body: some View {
         VStack(spacing: 16) {
@@ -41,9 +33,7 @@ struct GroupEditorView: View {
         }
         .frame(width: 320, height: 160)
         .onAppear {
-            if case .edit(let group) = mode {
-                name = group.name
-            }
+            name = mode.editingValue?.name ?? ""
         }
     }
 
@@ -51,7 +41,7 @@ struct GroupEditorView: View {
         let trimmed = name.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return }
 
-        if case .edit(let group) = mode {
+        if let group = mode.editingValue {
             store.updateGroup(id: group.id, name: trimmed)
         } else {
             store.addGroup(name: trimmed)

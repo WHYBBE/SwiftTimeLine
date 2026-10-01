@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct SidebarView: View {
-    @EnvironmentObject var store: DataStore
+    @Environment(DataStore.self) private var store
     @Binding var selectedGroupID: UUID?
     @State private var editingGroup: TimelineGroup?
 

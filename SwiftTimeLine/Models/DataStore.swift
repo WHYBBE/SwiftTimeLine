@@ -3,8 +3,9 @@ import SwiftUI
 import AppKit
 
 @MainActor
-class DataStore: ObservableObject {
-    @Published var groups: [TimelineGroup] = []
+@Observable
+final class DataStore {
+    var groups: [TimelineGroup] = []
 
     private let fileURL: URL
 

@@ -6,7 +6,7 @@ enum ViewMode: String, CaseIterable {
 }
 
 struct ContentView: View {
-    @EnvironmentObject var store: DataStore
+    @Environment(DataStore.self) private var store
     @State private var selectedGroupID: UUID?
     @State private var viewMode: ViewMode = .vertical
     @State private var showAddGroup = false

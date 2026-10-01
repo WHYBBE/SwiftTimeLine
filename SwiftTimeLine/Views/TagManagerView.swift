@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct TagManagerView: View {
-    @EnvironmentObject var store: DataStore
+    @Environment(DataStore.self) private var store
     @Environment(\.dismiss) private var dismiss
     let groupID: UUID
 
@@ -84,7 +84,7 @@ struct TagManagerView: View {
 }
 
 private struct TagEditSheet: View {
-    @EnvironmentObject var store: DataStore
+    @Environment(DataStore.self) private var store
     @Environment(\.dismiss) private var dismiss
     let groupID: UUID
     let tag: Tag

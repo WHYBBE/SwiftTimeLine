@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct HorizontalTimelineView: View {
-    @EnvironmentObject var store: DataStore
+    @Environment(DataStore.self) private var store
     let group: TimelineGroup
     let onSelectEvent: (TimelineEvent) -> Void
 

@@ -2,12 +2,12 @@ import SwiftUI
 
 @main
 struct SwiftTimeLineApp: App {
-    @StateObject private var store = DataStore()
+    @State private var store = DataStore()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environmentObject(store)
+                .environment(store)
                 .frame(minWidth: 800, minHeight: 500)
         }
     }

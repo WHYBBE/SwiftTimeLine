@@ -1,14 +1,9 @@
 import SwiftUI
 
-enum EventEditorMode {
-    case add
-    case edit(TimelineEvent)
-}
-
 struct EventEditorView: View {
-    @EnvironmentObject var store: DataStore
+    @Environment(DataStore.self) private var store
 
-    let mode: EventEditorMode
+    let mode: EditorMode<TimelineEvent>
     let groupID: UUID
     let onDone: () -> Void
     let onDelete: (() -> Void)?
@@ -20,10 +15,7 @@ struct EventEditorView: View {
     @State private var selectedColor: String = "#4A90D9"
     @State private var selectedTagIDs: Set<UUID> = []
 
-    private var isEditing: Bool {
-        if case .edit = mode { return true }
-        return false
-    }
+    private var isEditing: Bool { mode.isEditing }
 
     private var groupTags: [Tag] {
         store.tagsInGroup(groupID)
@@ -98,7 +90,7 @@ struct EventEditorView: View {
                         tagSelectionView
                     }
 
-                    if case .edit(let event) = mode {
+                    if let event = mode.editingValue {
                         Divider()
                         VStack(alignment: .leading, spacing: 4) {
                             Text("创建于 \(formatTimestamp(event.createdAt))")
@@ -173,7 +165,7 @@ struct EventEditorView: View {
     }
 
     private func loadFromMode() {
-        if case .edit(let event) = mode {
+        if let event = mode.editingValue {
             title = event.title
             eventDescription = event.description
             date = event.date
@@ -195,8 +187,7 @@ struct EventEditorView: View {
         let trimmedTitle = title.trimmingCharacters(in: .whitespaces)
         guard !trimmedTitle.isEmpty else { return }
 
-        if case .edit(let existing) = mode {
-            var updated = existing
+        if var updated = mode.editingValue {
             updated.title = trimmedTitle
             updated.description = eventDescription
             updated.date = finalDate
@@ -228,13 +219,32 @@ struct EventEditorView: View {
 struct FlowLayout: Layout {
     var spacing: CGFloat = 4
 
-    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+    struct Cache {
+        var proposalWidth: CGFloat?
+        var size: CGSize = .zero
+        var positions: [CGPoint] = []
+    }
+
+    func makeCache(subviews: Subviews) -> Cache {
+        Cache()
+    }
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) -> CGSize {
         let result = layout(proposal: proposal, subviews: subviews)
+        cache.proposalWidth = proposal.width
+        cache.size = result.size
+        cache.positions = result.positions
         return result.size
     }
 
-    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
-        let result = layout(proposal: proposal, subviews: subviews)
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout Cache) {
+        var result = (size: cache.size, positions: cache.positions)
+        if cache.proposalWidth != proposal.width || cache.positions.count != subviews.count {
+            result = layout(proposal: proposal, subviews: subviews)
+            cache.proposalWidth = proposal.width
+            cache.size = result.size
+            cache.positions = result.positions
+        }
         for (index, position) in result.positions.enumerated() {
             subviews[index].place(at: CGPoint(x: bounds.minX + position.x, y: bounds.minY + position.y), proposal: .unspecified)
         }
