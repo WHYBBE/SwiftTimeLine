@@ -3,31 +3,19 @@ import SwiftUI
 struct VerticalTimelineView: View {
     @Environment(\.loc) private var loc
     let group: TimelineGroup
+    let ascending: Bool
     let onSelectEvent: (TimelineEvent) -> Void
-    let onAddEvent: () -> Void
 
     private var groupedByDate: [(key: String, events: [TimelineEvent])] {
         let dict = Dictionary(grouping: group.events) { DateFormat.yearMonth($0.date, language: loc.language) }
         return dict.sorted { a, b in
             guard let da = a.value.first?.date, let db = b.value.first?.date else { return false }
-            return da < db
+            return ascending ? da < db : da > db
         }.map { (key: $0.key, events: $0.value) }
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack {
-                Text(group.name)
-                    .font(.title2.bold())
-                Spacer()
-                Button(action: onAddEvent) {
-                    Label(loc(.newEvent), systemImage: "plus")
-                }
-            }
-            .padding()
-
-            Divider()
-
             if group.events.isEmpty {
                 VStack(spacing: 12) {
                     Image(systemName: "calendar.badge.plus")
@@ -92,10 +80,15 @@ struct VerticalTimelineView: View {
         let eventColor = Color(hex: event.color)
         VStack(alignment: .leading, spacing: 6) {
             HStack {
+                if event.isPinned {
+                    Image(systemName: "pin.fill")
+                        .font(.caption2)
+                        .foregroundStyle(eventColor)
+                }
                 Text(event.title)
                     .font(.body.bold())
                 Spacer()
-                Text(DateFormat.eventDate(event.date, language: loc.language))
+                Text(dateRangeText(for: event))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -105,6 +98,20 @@ struct VerticalTimelineView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(3)
+            }
+
+            if !event.location.isEmpty {
+                Label(event.location, systemImage: "mappin.and.ellipse")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+
+            if let link = event.linkURL {
+                Link(destination: link) {
+                    Label(event.url, systemImage: "link")
+                        .font(.caption2)
+                        .lineLimit(1)
+                }
             }
 
             let eventTags = group.tags.filter { event.tagIDs.contains($0.id) }
@@ -124,6 +131,13 @@ struct VerticalTimelineView: View {
                 .strokeBorder(eventColor.opacity(0.2), lineWidth: 1)
         )
         .frame(maxWidth: 400)
+    }
+
+    private func dateRangeText(for event: TimelineEvent) -> String {
+        let start = DateFormat.eventDate(event.date, language: loc.language)
+        guard let endDate = event.endDate else { return start }
+        let end = DateFormat.eventDate(endDate, language: loc.language)
+        return "\(start) – \(end)"
     }
 
     private func primaryColor(for event: TimelineEvent) -> Color {

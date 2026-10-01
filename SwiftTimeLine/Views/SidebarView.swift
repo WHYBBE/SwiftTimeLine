@@ -10,9 +10,12 @@ struct SidebarView: View {
         List(selection: $selectedGroupID) {
             ForEach(store.groups) { group in
                 HStack {
-                    Label(group.name, systemImage: "calendar.day.timeline.left")
-                        .symbolRenderingMode(.hierarchical)
-                        .labelStyle(.titleAndIcon)
+                    GroupIconView(
+                        emoji: group.emoji,
+                        symbol: group.symbol,
+                        color: Color(hex: group.color)
+                    )
+                    Text(group.name)
                     Spacer()
                     Text("\(group.events.count)")
                         .font(.caption)
@@ -24,27 +27,49 @@ struct SidebarView: View {
                 }
                 .tag(group.id)
                 .contextMenu {
-                    Button(loc(.editGroup)) {
-                        editingGroup = group
-                    }
-
-                    Button(loc(.exportGroup)) {
-                        if let data = store.exportGroupData(id: group.id) {
-                            FilePanels.save(data: data, suggestedName: "\(group.name).json")
-                        }
-                    }
-
-                    Divider()
-
-                    Button(loc(.deleteGroup), role: .destructive) {
-                        store.deleteGroup(id: group.id)
-                    }
+                    contextMenu(for: group)
                 }
+            }
+            .onMove { source, destination in
+                store.moveGroups(fromOffsets: source, toOffset: destination)
             }
         }
         .listStyle(.sidebar)
         .sheet(item: $editingGroup) { group in
             GroupEditorView(mode: .edit(group))
+        }
+    }
+
+    @ViewBuilder
+    private func contextMenu(for group: TimelineGroup) -> some View {
+        Button(loc(.editGroup)) {
+            editingGroup = group
+        }
+
+        Button(loc(.exportGroup)) {
+            if let data = store.exportGroupData(id: group.id) {
+                FilePanels.save(data: data, suggestedName: "\(group.name).json")
+            }
+        }
+
+        Divider()
+
+        Button(loc(.exportImage)) {
+            if let data = TimelineExporter.pngData(group: group, loc: loc) {
+                FilePanels.save(data: data, suggestedName: "\(group.name).png", contentType: .png)
+            }
+        }
+
+        Button(loc(.exportPDF)) {
+            if let data = TimelineExporter.pdfData(group: group, loc: loc) {
+                FilePanels.save(data: data, suggestedName: "\(group.name).pdf", contentType: .pdf)
+            }
+        }
+
+        Divider()
+
+        Button(loc(.deleteGroup), role: .destructive) {
+            store.deleteGroup(id: group.id)
         }
     }
 }

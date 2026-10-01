@@ -63,8 +63,8 @@ final class DataStore {
 
     // MARK: - Group Operations
 
-    func addGroup(name: String) {
-        groups.append(TimelineGroup(name: name))
+    func addGroup(name: String, color: String = "#4A90D9", symbol: String? = nil, emoji: String? = nil) {
+        groups.append(TimelineGroup(name: name, color: color, symbol: symbol, emoji: emoji))
         save()
     }
 
@@ -73,11 +73,16 @@ final class DataStore {
         save()
     }
 
-    func updateGroup(id: UUID, name: String) {
-        if let i = groups.firstIndex(where: { $0.id == id }) {
-            groups[i].name = name
+    func updateGroup(_ group: TimelineGroup) {
+        if let i = groups.firstIndex(where: { $0.id == group.id }) {
+            groups[i] = group
             save()
         }
+    }
+
+    func moveGroups(fromOffsets source: IndexSet, toOffset destination: Int) {
+        groups.move(fromOffsets: source, toOffset: destination)
+        save()
     }
 
     // MARK: - Event Operations

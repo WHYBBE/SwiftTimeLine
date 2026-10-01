@@ -28,6 +28,42 @@ enum LKey: String {
     case loadFailed = "Failed to load: %@"
     case saveFailed = "Failed to save: %@"
 
+    // Statistics
+    case statistics = "Statistics"
+    case totalEvents = "Total Events"
+    case totalTags = "Total Tags"
+    case eventsPerMonth = "Events per Month"
+    case eventsPerTag = "Events per Tag"
+    case close = "Close"
+
+    // Date range
+    case dateRange = "Date Range"
+    case dateAll = "All Time"
+    case dateLast3Months = "Last 3 Months"
+    case dateLastYear = "Last Year"
+    case dateThisYear = "This Year"
+
+    // Zoom
+    case fitToWidth = "Fit to Width"
+    case resetZoom = "Reset Zoom"
+
+    // Sort
+    case sortOrder = "Sort Order"
+    case sortAscending = "Oldest First"
+    case sortDescending = "Newest First"
+
+    // Event extras
+    case endDate = "End date"
+    case location = "Location"
+    case locationPlaceholder = "Add a location"
+    case link = "Link"
+    case linkPlaceholder = "https://…"
+    case pinEvent = "Pin event"
+
+    // Export
+    case exportImage = "Export as Image…"
+    case exportPDF = "Export as PDF…"
+
     // View mode / toolbar
     case vertical = "Vertical"
     case horizontal = "Horizontal"
@@ -73,6 +109,9 @@ enum LKey: String {
 
     // Group editor
     case groupNamePlaceholder = "Group name"
+    case icon = "Icon"
+    case resetToDefault = "Reset to Default"
+    case emoji = "Emoji"
 
     // Color
     case randomColor = "Random color"
@@ -119,6 +158,36 @@ struct Localization: Equatable {
         .loadFailed: "加载失败：%@",
         .saveFailed: "保存失败：%@",
 
+        .statistics: "统计",
+        .totalEvents: "事件总数",
+        .totalTags: "标签数",
+        .eventsPerMonth: "每月事件数",
+        .eventsPerTag: "各标签事件数",
+        .close: "关闭",
+
+        .dateRange: "时间范围",
+        .dateAll: "全部时间",
+        .dateLast3Months: "近三个月",
+        .dateLastYear: "近一年",
+        .dateThisYear: "今年",
+
+        .fitToWidth: "适配宽度",
+        .resetZoom: "重置缩放",
+
+        .sortOrder: "排序方式",
+        .sortAscending: "正序（旧→新）",
+        .sortDescending: "倒序（新→旧）",
+
+        .endDate: "结束日期",
+        .location: "地点",
+        .locationPlaceholder: "添加地点",
+        .link: "链接",
+        .linkPlaceholder: "https://…",
+        .pinEvent: "置顶事件",
+
+        .exportImage: "导出为图片…",
+        .exportPDF: "导出为 PDF…",
+
         .vertical: "垂直",
         .horizontal: "水平",
         .viewModeLabel: "视图",
@@ -158,6 +227,9 @@ struct Localization: Equatable {
         .name: "名称",
 
         .groupNamePlaceholder: "分组名称",
+        .icon: "图标",
+        .resetToDefault: "重置为默认",
+        .emoji: "Emoji",
 
         .randomColor: "随机颜色",
     ]

@@ -13,6 +13,11 @@ struct EventEditorView: View {
     @State private var eventDescription: String = ""
     @State private var date: Date = Date()
     @State private var includeTime: Bool = false
+    @State private var includeEndDate: Bool = false
+    @State private var endDate: Date = Date()
+    @State private var location: String = ""
+    @State private var url: String = ""
+    @State private var isPinned: Bool = false
     @State private var selectedColor: String = "#4A90D9"
     @State private var selectedTagIDs: Set<UUID> = []
 
@@ -75,7 +80,39 @@ struct EventEditorView: View {
                                 .toggleStyle(.checkbox)
                                 .font(.caption)
                         }
+
+                        Toggle(loc(.endDate), isOn: $includeEndDate)
+                            .toggleStyle(.checkbox)
+                            .font(.caption)
+
+                        if includeEndDate {
+                            DatePicker("", selection: $endDate,
+                                       in: date...,
+                                       displayedComponents: includeTime ? [.date, .hourAndMinute] : [.date])
+                                .labelsHidden()
+                        }
                     }
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(loc(.location))
+                            .font(.caption.bold())
+                            .foregroundStyle(.secondary)
+                        TextField(loc(.locationPlaceholder), text: $location)
+                            .textFieldStyle(.roundedBorder)
+                    }
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(loc(.link))
+                            .font(.caption.bold())
+                            .foregroundStyle(.secondary)
+                        TextField(loc(.linkPlaceholder), text: $url)
+                            .textFieldStyle(.roundedBorder)
+                            .autocorrectionDisabled()
+                    }
+
+                    Toggle(loc(.pinEvent), isOn: $isPinned)
+                        .toggleStyle(.checkbox)
+                        .font(.caption)
 
                     VStack(alignment: .leading, spacing: 6) {
                         Text(loc(.color))
@@ -153,6 +190,11 @@ struct EventEditorView: View {
             title = event.title
             eventDescription = event.description
             date = event.date
+            endDate = event.endDate ?? event.date
+            includeEndDate = event.endDate != nil
+            location = event.location
+            url = event.url
+            isPinned = event.isPinned
             selectedColor = event.color
             selectedTagIDs = Set(event.tagIDs)
             // Detect if the event has a non-midnight time
@@ -167,6 +209,12 @@ struct EventEditorView: View {
         return Calendar.current.startOfDay(for: date)
     }
 
+    private var finalEndDate: Date? {
+        guard includeEndDate else { return nil }
+        if includeTime { return endDate }
+        return Calendar.current.startOfDay(for: endDate)
+    }
+
     private func save() {
         let trimmedTitle = title.trimmingCharacters(in: .whitespaces)
         guard !trimmedTitle.isEmpty else { return }
@@ -175,6 +223,10 @@ struct EventEditorView: View {
             updated.title = trimmedTitle
             updated.description = eventDescription
             updated.date = finalDate
+            updated.endDate = finalEndDate
+            updated.location = location.trimmingCharacters(in: .whitespaces)
+            updated.url = url.trimmingCharacters(in: .whitespaces)
+            updated.isPinned = isPinned
             updated.color = selectedColor
             updated.tagIDs = Array(selectedTagIDs)
             updated.modifiedAt = Date()
@@ -184,6 +236,10 @@ struct EventEditorView: View {
                 title: trimmedTitle,
                 description: eventDescription,
                 date: finalDate,
+                endDate: finalEndDate,
+                location: location.trimmingCharacters(in: .whitespaces),
+                url: url.trimmingCharacters(in: .whitespaces),
+                isPinned: isPinned,
                 tagIDs: Array(selectedTagIDs),
                 color: selectedColor
             )

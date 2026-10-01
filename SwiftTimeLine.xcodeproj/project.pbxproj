@@ -26,6 +26,11 @@
 		A1011 /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1011; };
 		A1012 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1012; };
 		A1013 /* AppEnvironmentRoot.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1013; };
+		A1014 /* DateFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1014; };
+		A1015 /* StatisticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1015; };
+		A1016 /* TimelineExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1016; };
+		A1017 /* TimelineExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1017; };
+		A1018 /* GroupIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1018; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +53,11 @@
 		B1011 /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
 		B1012 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		B1013 /* AppEnvironmentRoot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironmentRoot.swift; sourceTree = "<group>"; };
+		B1014 /* DateFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateFilter.swift; sourceTree = "<group>"; };
+		B1015 /* StatisticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsView.swift; sourceTree = "<group>"; };
+		B1016 /* TimelineExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineExportView.swift; sourceTree = "<group>"; };
+		B1017 /* TimelineExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineExporter.swift; sourceTree = "<group>"; };
+		B1018 /* GroupIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupIconView.swift; sourceTree = "<group>"; };
 		C10001 /* SwiftTimeLine.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftTimeLine.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -88,6 +98,7 @@
 				B10003 /* DataStore.swift */,
 				B1000C /* EditorMode.swift */,
 				B1010 /* AppSettings.swift */,
+				B1014 /* DateFilter.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -105,6 +116,9 @@
 				B1000F /* TagChip.swift */,
 				B1012 /* SettingsView.swift */,
 				B1013 /* AppEnvironmentRoot.swift */,
+				B1015 /* StatisticsView.swift */,
+				B1016 /* TimelineExportView.swift */,
+				B1018 /* GroupIconView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -124,6 +138,7 @@
 				B1000D /* DateFormat.swift */,
 				B1000E /* FilePanels.swift */,
 				B1011 /* Localization.swift */,
+				B1017 /* TimelineExporter.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -210,6 +225,11 @@
 				A1011 /* Localization.swift in Sources */,
 				A1012 /* SettingsView.swift in Sources */,
 				A1013 /* AppEnvironmentRoot.swift in Sources */,
+				A1014 /* DateFilter.swift in Sources */,
+				A1015 /* StatisticsView.swift in Sources */,
+				A1016 /* TimelineExportView.swift in Sources */,
+				A1017 /* TimelineExporter.swift in Sources */,
+				A1018 /* GroupIconView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

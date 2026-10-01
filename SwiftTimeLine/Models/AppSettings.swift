@@ -67,17 +67,32 @@ final class AppSettings {
         didSet { defaults.set(language.rawValue, forKey: Keys.language) }
     }
 
+    /// Per-group sort order: `true` = ascending (oldest first).
+    private var sortAscendingByGroup: [String: Bool] {
+        didSet { defaults.set(sortAscendingByGroup, forKey: Keys.sort) }
+    }
+
     private let defaults: UserDefaults
 
     private enum Keys {
         static let theme = "app.theme"
         static let language = "app.language"
+        static let sort = "app.sortAscending"
     }
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         theme = AppTheme(rawValue: defaults.string(forKey: Keys.theme) ?? "") ?? .system
         language = AppLanguage(rawValue: defaults.string(forKey: Keys.language) ?? "") ?? .system
+        sortAscendingByGroup = defaults.object(forKey: Keys.sort) as? [String: Bool] ?? [:]
+    }
+
+    func sortAscending(for groupID: UUID) -> Bool {
+        sortAscendingByGroup[groupID.uuidString] ?? true
+    }
+
+    func setSortAscending(_ value: Bool, for groupID: UUID) {
+        sortAscendingByGroup[groupID.uuidString] = value
     }
 
     var localization: Localization {

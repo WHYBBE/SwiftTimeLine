@@ -4,10 +4,10 @@ struct HorizontalTimelineView: View {
     @Environment(\.loc) private var loc
     let group: TimelineGroup
     let onSelectEvent: (TimelineEvent) -> Void
-    let onAddEvent: () -> Void
 
     @State private var scale: CGFloat = 1.0
     @State private var hoveredEventID: UUID?
+    @State private var containerWidth: CGFloat = 800
 
     private var dateRange: (min: Date, max: Date) {
         let allDates = group.events.map(\.date)
@@ -42,12 +42,7 @@ struct HorizontalTimelineView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                Text(group.name)
-                    .font(.title2.bold())
                 Spacer()
-                Button(action: onAddEvent) {
-                    Label(loc(.newEvent), systemImage: "plus")
-                }
                 HStack(spacing: 4) {
                     Button(action: { withAnimation { scale = max(0.3, scale - 0.2) } }) {
                         Image(systemName: "minus.magnifyingglass")
@@ -59,10 +54,19 @@ struct HorizontalTimelineView: View {
                     Button(action: { withAnimation { scale = min(5.0, scale + 0.2) } }) {
                         Image(systemName: "plus.magnifyingglass")
                     }
+                    Button(action: fitToWidth) {
+                        Image(systemName: "arrow.left.and.right.square")
+                    }
+                    .help(loc(.fitToWidth))
+                    Button(action: { withAnimation { scale = 1.0 } }) {
+                        Image(systemName: "arrow.counterclockwise")
+                    }
+                    .help(loc(.resetZoom))
                 }
                 .buttonStyle(.borderless)
             }
-            .padding()
+            .padding(.horizontal)
+            .padding(.vertical, 6)
 
             Divider()
 
@@ -85,6 +89,11 @@ struct HorizontalTimelineView: View {
                     }
                     .padding(.bottom, 20)
                 }
+                .onGeometryChange(for: CGFloat.self) { proxy in
+                    proxy.size.width
+                } action: { width in
+                    containerWidth = width
+                }
             }
         }
     }
@@ -92,8 +101,16 @@ struct HorizontalTimelineView: View {
     // MARK: - Layout
 
     private let labelWidth: CGFloat = 72
-    private var totalWidth: CGFloat { 800 * scale }
+    private let baseWidth: CGFloat = 800
+    private var totalWidth: CGFloat { baseWidth * scale }
     private let rowHeight: CGFloat = 40
+
+    private func fitToWidth() {
+        let available = max(200, containerWidth - labelWidth)
+        withAnimation {
+            scale = min(5.0, max(0.3, available / baseWidth))
+        }
+    }
 
     private func xPosition(for date: Date) -> CGFloat {
         let range = dateRange
@@ -186,8 +203,14 @@ struct HorizontalTimelineView: View {
                 if hoveredEventID == event.id {
                     let x = xPosition(for: event.date) + labelWidth + 8
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(event.title)
-                            .font(.caption.bold())
+                        HStack(spacing: 4) {
+                            if event.isPinned {
+                                Image(systemName: "pin.fill")
+                                    .font(.caption2)
+                            }
+                            Text(event.title)
+                                .font(.caption.bold())
+                        }
                         Text(formatTooltipDate(event.date))
                             .font(.caption2)
                             .foregroundStyle(.secondary)
@@ -196,6 +219,11 @@ struct HorizontalTimelineView: View {
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
                                 .lineLimit(2)
+                        }
+                        if !event.location.isEmpty {
+                            Label(event.location, systemImage: "mappin.and.ellipse")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
                         }
                     }
                     .padding(6)
