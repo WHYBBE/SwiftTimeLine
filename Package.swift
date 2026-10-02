@@ -17,7 +17,10 @@ let package = Package(
                 "SwiftTimeLine.xcodeproj",
                 "SwiftTimeLine/SwiftTimeLineApp.swift",
                 "SwiftTimeLine/Assets.xcassets",
-                "LICENSE"
+                "LICENSE",
+                "README.md",
+                "README.zh-CN.md",
+                "docs"
             ],
             sources: [
                 "SwiftTimeLine",
