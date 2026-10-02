@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 struct SettingsView: View {
     @Environment(DataStore.self) private var store
@@ -73,6 +74,12 @@ struct SettingsView: View {
                     }
                 } label: {
                     Label(loc(.exportData), systemImage: "square.and.arrow.up")
+                }
+
+                Button {
+                    NSWorkspace.shared.activateFileViewerSelecting([store.dataFileURL])
+                } label: {
+                    Label(loc(.revealInFinder), systemImage: "folder")
                 }
 
                 Button(role: .destructive) {

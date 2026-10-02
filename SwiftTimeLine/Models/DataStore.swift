@@ -14,12 +14,15 @@ final class DataStore {
 
     private let fileURL: URL
 
+    /// Location of the persisted data file.
+    var dataFileURL: URL { fileURL }
+
     init(fileURL: URL? = nil) {
         if let fileURL {
             self.fileURL = fileURL
         } else {
-            let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-            let dir = docs.appendingPathComponent("SwiftTimeLine", isDirectory: true)
+            let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+            let dir = base.appendingPathComponent("SwiftTimeLine", isDirectory: true)
             try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
             self.fileURL = dir.appendingPathComponent("data.json")
         }

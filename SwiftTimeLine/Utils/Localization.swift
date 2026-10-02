@@ -17,6 +17,7 @@ enum LKey: String {
     case dataManagement = "Data Management"
     case importData = "Import Data…"
     case exportData = "Export Data…"
+    case revealInFinder = "Show in Finder"
     case clearData = "Clear All Data…"
     case clearDataConfirmTitle = "Clear All Data?"
     case clearDataConfirmMessage = "This will permanently delete all groups, events, and tags. This action cannot be undone."
@@ -147,6 +148,7 @@ struct Localization: Equatable {
         .dataManagement: "数据管理",
         .importData: "导入数据…",
         .exportData: "导出数据…",
+        .revealInFinder: "在访达中显示",
         .clearData: "清空全部数据…",
         .clearDataConfirmTitle: "清空全部数据？",
         .clearDataConfirmMessage: "将永久删除所有分组、事件和标签。此操作无法撤销。",
