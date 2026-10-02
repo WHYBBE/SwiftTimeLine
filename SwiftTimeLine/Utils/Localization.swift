@@ -29,6 +29,12 @@ enum LKey: String {
     case loadFailed = "Failed to load: %@"
     case saveFailed = "Failed to save: %@"
 
+    // About
+    case about = "About SwiftTimeLine"
+    case version = "Version"
+    case mitLicense = "MIT License"
+    case licenseNotice = "Released under the MIT License."
+
     // Statistics
     case statistics = "Statistics"
     case totalEvents = "Total Events"
@@ -159,6 +165,11 @@ struct Localization: Equatable {
         .error: "出错了",
         .loadFailed: "加载失败：%@",
         .saveFailed: "保存失败：%@",
+
+        .about: "关于 SwiftTimeLine",
+        .version: "版本",
+        .mitLicense: "MIT 许可证",
+        .licenseNotice: "基于 MIT 许可证发布。",
 
         .statistics: "统计",
         .totalEvents: "事件总数",

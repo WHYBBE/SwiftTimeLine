@@ -16,7 +16,8 @@ let package = Package(
             exclude: [
                 "SwiftTimeLine.xcodeproj",
                 "SwiftTimeLine/SwiftTimeLineApp.swift",
-                "SwiftTimeLine/Assets.xcassets"
+                "SwiftTimeLine/Assets.xcassets",
+                "LICENSE"
             ],
             sources: [
                 "SwiftTimeLine",

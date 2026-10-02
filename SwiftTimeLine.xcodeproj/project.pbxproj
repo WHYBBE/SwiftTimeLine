@@ -32,6 +32,8 @@
 		A1017 /* TimelineExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1017; };
 		A1018 /* GroupIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1018; };
 		A1019 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B1019; };
+		A1020 /* AppInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1020; };
+		A1021 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1021; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -60,6 +62,8 @@
 		B1017 /* TimelineExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineExporter.swift; sourceTree = "<group>"; };
 		B1018 /* GroupIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupIconView.swift; sourceTree = "<group>"; };
 		B1019 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B1020 /* AppInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInfo.swift; sourceTree = "<group>"; };
+		B1021 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 		C10001 /* SwiftTimeLine.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftTimeLine.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -122,6 +126,7 @@
 				B1015 /* StatisticsView.swift */,
 				B1016 /* TimelineExportView.swift */,
 				B1018 /* GroupIconView.swift */,
+				B1021 /* AboutView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -142,6 +147,7 @@
 				B1000E /* FilePanels.swift */,
 				B1011 /* Localization.swift */,
 				B1017 /* TimelineExporter.swift */,
+				B1020 /* AppInfo.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -234,6 +240,8 @@
 				A1016 /* TimelineExportView.swift in Sources */,
 				A1017 /* TimelineExporter.swift in Sources */,
 				A1018 /* GroupIconView.swift in Sources */,
+				A1020 /* AppInfo.swift in Sources */,
+				A1021 /* AboutView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

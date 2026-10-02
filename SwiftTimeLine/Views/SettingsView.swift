@@ -5,6 +5,7 @@ struct SettingsView: View {
     @Environment(DataStore.self) private var store
     @Environment(AppSettings.self) private var settings
     @Environment(\.loc) private var loc
+    @Environment(\.openWindow) private var openWindow
 
     @State private var showClearConfirm = false
 
@@ -52,6 +53,14 @@ struct SettingsView: View {
                     }
                 }
                 .pickerStyle(.segmented)
+            }
+
+            Section {
+                Button {
+                    openWindow(id: AboutView.windowID)
+                } label: {
+                    Label(loc(.about), systemImage: "info.circle")
+                }
             }
         }
         .formStyle(.grouped)

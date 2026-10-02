@@ -16,6 +16,9 @@ struct SwiftTimeLineSPMApp: App {
             .environment(store)
             .environment(settings)
         }
+        .commands {
+            AppCommands(loc: settings.localization)
+        }
 
         Settings {
             AppEnvironmentRoot {
@@ -24,6 +27,15 @@ struct SwiftTimeLineSPMApp: App {
             .environment(store)
             .environment(settings)
         }
+
+        Window(settings.localization(.about), id: AboutView.windowID) {
+            AppEnvironmentRoot {
+                AboutView()
+            }
+            .environment(store)
+            .environment(settings)
+        }
+        .windowResizability(.contentSize)
     }
 }
 
