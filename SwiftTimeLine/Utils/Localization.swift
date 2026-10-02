@@ -17,6 +17,7 @@ enum LKey: String {
     case dataManagement = "Data Management"
     case importData = "Import Data…"
     case exportData = "Export Data…"
+    case generateDemoData = "Generate Demo Data"
     case revealInFinder = "Show in Finder"
     case clearData = "Clear All Data…"
     case clearDataConfirmTitle = "Clear All Data?"
@@ -154,6 +155,7 @@ struct Localization: Equatable {
         .dataManagement: "数据管理",
         .importData: "导入数据…",
         .exportData: "导出数据…",
+        .generateDemoData: "生成演示数据",
         .revealInFinder: "在访达中显示",
         .clearData: "清空全部数据…",
         .clearDataConfirmTitle: "清空全部数据？",

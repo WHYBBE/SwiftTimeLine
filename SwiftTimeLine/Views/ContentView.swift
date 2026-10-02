@@ -88,6 +88,9 @@ struct ContentView: View {
             activeTagIDs.removeAll()
             showStatistics = false
         }
+        .task {
+            store.seedDemoDataIfNeeded(language: settings.language.resolved)
+        }
         .alert(loc(.error), isPresented: Binding(
             get: { store.lastError != nil },
             set: { if !$0 { store.lastError = nil } }

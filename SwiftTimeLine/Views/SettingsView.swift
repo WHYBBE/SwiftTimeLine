@@ -86,6 +86,12 @@ struct SettingsView: View {
                 }
 
                 Button {
+                    store.addDemoData(language: settings.language.resolved)
+                } label: {
+                    Label(loc(.generateDemoData), systemImage: "wand.and.stars")
+                }
+
+                Button {
                     NSWorkspace.shared.activateFileViewerSelecting([store.dataFileURL])
                 } label: {
                     Label(loc(.revealInFinder), systemImage: "folder")

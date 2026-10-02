@@ -195,4 +195,19 @@ final class DataStore {
         groups.removeAll()
         save()
     }
+
+    // MARK: - Demo Data
+
+    /// Seed demo data the first time the app starts with an empty store.
+    func seedDemoDataIfNeeded(language: AppLanguage) {
+        guard groups.isEmpty else { return }
+        groups = DemoData.groups(language: language)
+        save()
+    }
+
+    /// Append demo data in the given language.
+    func addDemoData(language: AppLanguage) {
+        groups.append(contentsOf: DemoData.groups(language: language))
+        save()
+    }
 }

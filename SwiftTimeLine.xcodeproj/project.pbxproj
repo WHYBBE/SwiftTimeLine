@@ -34,6 +34,7 @@
 		A1019 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B1019; };
 		A1020 /* AppInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1020; };
 		A1021 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1021; };
+		A1022 /* DemoData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1022; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -64,6 +65,7 @@
 		B1019 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B1020 /* AppInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInfo.swift; sourceTree = "<group>"; };
 		B1021 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
+		B1022 /* DemoData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoData.swift; sourceTree = "<group>"; };
 		C10001 /* SwiftTimeLine.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftTimeLine.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -106,6 +108,7 @@
 				B1000C /* EditorMode.swift */,
 				B1010 /* AppSettings.swift */,
 				B1014 /* DateFilter.swift */,
+				B1022 /* DemoData.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -242,6 +245,7 @@
 				A1018 /* GroupIconView.swift in Sources */,
 				A1020 /* AppInfo.swift in Sources */,
 				A1021 /* AboutView.swift in Sources */,
+				A1022 /* DemoData.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
