@@ -138,13 +138,18 @@ struct Localization: Equatable {
         case .chinese:
             return Self.chinese[key] ?? key.rawValue
         case .english, .system:
-            return key.rawValue
+            return Self.englishOverrides[key] ?? key.rawValue
         }
     }
 
     func format(_ key: LKey, _ args: CVarArg...) -> String {
         String(format: callAsFunction(key), arguments: args)
     }
+
+    /// English labels that intentionally share wording but need a unique raw value.
+    private static let englishOverrides: [LKey: String] = [
+        .languageSystem: "System",
+    ]
 
     private static let chinese: [LKey: String] = [
         .settings: "设置",
