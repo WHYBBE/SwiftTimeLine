@@ -88,6 +88,11 @@ struct ContentView: View {
             activeTagIDs.removeAll()
             showStatistics = false
         }
+        .onChange(of: store.groups) { _, newValue in
+            if let id = selectedGroupID, newValue.first(where: { $0.id == id })?.isHidden == true {
+                selectedGroupID = nil
+            }
+        }
         .task {
             store.seedDemoDataIfNeeded(language: settings.language.resolved)
         }
@@ -106,7 +111,8 @@ struct ContentView: View {
     @ViewBuilder
     private var mainArea: some View {
         if let gid = selectedGroupID,
-           let group = store.groups.first(where: { $0.id == gid }) {
+           let group = store.groups.first(where: { $0.id == gid }),
+           !group.isHidden {
             HStack(spacing: 0) {
                 // Left: timeline view
                 VStack(spacing: 0) {

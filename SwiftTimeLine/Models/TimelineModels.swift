@@ -82,6 +82,7 @@ struct TimelineGroup: Identifiable, Codable, Hashable {
     var color: String = "#4A90D9"
     var symbol: String?
     var emoji: String?
+    var isHidden: Bool = false
     var tags: [Tag] = []
     var events: [TimelineEvent] = []
 
@@ -91,6 +92,7 @@ struct TimelineGroup: Identifiable, Codable, Hashable {
         color: String = "#4A90D9",
         symbol: String? = nil,
         emoji: String? = nil,
+        isHidden: Bool = false,
         tags: [Tag] = [],
         events: [TimelineEvent] = []
     ) {
@@ -99,6 +101,7 @@ struct TimelineGroup: Identifiable, Codable, Hashable {
         self.color = color
         self.symbol = symbol
         self.emoji = emoji
+        self.isHidden = isHidden
         self.tags = tags
         self.events = events
     }
@@ -110,6 +113,7 @@ struct TimelineGroup: Identifiable, Codable, Hashable {
         color = try c.decodeIfPresent(String.self, forKey: .color) ?? "#4A90D9"
         symbol = try c.decodeIfPresent(String.self, forKey: .symbol)
         emoji = try c.decodeIfPresent(String.self, forKey: .emoji)
+        isHidden = try c.decodeIfPresent(Bool.self, forKey: .isHidden) ?? false
         tags = try c.decodeIfPresent([Tag].self, forKey: .tags) ?? []
         events = try c.decodeIfPresent([TimelineEvent].self, forKey: .events) ?? []
     }

@@ -8,7 +8,7 @@ struct SidebarView: View {
 
     var body: some View {
         List(selection: $selectedGroupID) {
-            ForEach(store.groups) { group in
+            ForEach(store.visibleGroups) { group in
                 HStack {
                     GroupIconView(
                         emoji: group.emoji,
@@ -31,7 +31,7 @@ struct SidebarView: View {
                 }
             }
             .onMove { source, destination in
-                store.moveGroups(fromOffsets: source, toOffset: destination)
+                store.moveVisibleGroups(fromOffsets: source, toOffset: destination)
             }
         }
         .listStyle(.sidebar)

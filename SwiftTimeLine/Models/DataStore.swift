@@ -83,8 +83,32 @@ final class DataStore {
         }
     }
 
-    func moveGroups(fromOffsets source: IndexSet, toOffset destination: Int) {
-        groups.move(fromOffsets: source, toOffset: destination)
+    /// Groups that are not temporarily hidden.
+    var visibleGroups: [TimelineGroup] {
+        groups.filter { !$0.isHidden }
+    }
+
+    func setGroupHidden(id: UUID, hidden: Bool) {
+        if let i = groups.firstIndex(where: { $0.id == id }) {
+            groups[i].isHidden = hidden
+            save()
+        }
+    }
+
+    /// Reorder only the visible groups, leaving hidden ones in place.
+    func moveVisibleGroups(fromOffsets source: IndexSet, toOffset destination: Int) {
+        let visibleIndices = groups.indices.filter { !groups[$0].isHidden }
+        guard !visibleIndices.isEmpty else { return }
+
+        var fullSource = IndexSet()
+        for offset in source where offset < visibleIndices.count {
+            fullSource.insert(visibleIndices[offset])
+        }
+        let fullDestination = destination < visibleIndices.count
+            ? visibleIndices[destination]
+            : (visibleIndices.last ?? 0) + 1
+
+        groups.move(fromOffsets: fullSource, toOffset: fullDestination)
         save()
     }
 

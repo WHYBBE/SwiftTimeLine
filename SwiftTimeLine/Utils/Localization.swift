@@ -19,6 +19,11 @@ enum LKey: String {
     case exportData = "Export Data…"
     case generateDemoData = "Generate Demo Data"
     case revealInFinder = "Show in Finder"
+    case groupVisibility = "Group Visibility"
+    case groupVisibilityHint = "Click the eye icon to temporarily hide or show a group. Hidden groups stay saved but are not shown in the sidebar."
+    case noGroups = "No groups yet"
+    case hideGroup = "Hide"
+    case showGroup = "Show"
     case clearData = "Clear All Data…"
     case clearDataConfirmTitle = "Clear All Data?"
     case clearDataConfirmMessage = "This will permanently delete all groups, events, and tags. This action cannot be undone."
@@ -157,6 +162,11 @@ struct Localization: Equatable {
         .exportData: "导出数据…",
         .generateDemoData: "生成演示数据",
         .revealInFinder: "在访达中显示",
+        .groupVisibility: "分组显示",
+        .groupVisibilityHint: "点击眼睛图标可暂时隐藏或显示分组；隐藏后不会显示在侧边栏，数据仍会保留。",
+        .noGroups: "暂无分组",
+        .hideGroup: "隐藏",
+        .showGroup: "显示",
         .clearData: "清空全部数据…",
         .clearDataConfirmTitle: "清空全部数据？",
         .clearDataConfirmMessage: "将永久删除所有分组、事件和标签。此操作无法撤销。",

@@ -17,7 +17,7 @@ struct SettingsView: View {
             dataTab
                 .tabItem { Label(loc(.data), systemImage: "externaldrive") }
         }
-        .frame(width: 480, height: 300)
+        .frame(width: 480, height: 440)
         .alert(loc(.clearDataConfirmTitle), isPresented: $showClearConfirm) {
             Button(loc(.cancel), role: .cancel) {}
             Button(loc(.clear), role: .destructive) { store.clearAll() }
@@ -104,6 +104,43 @@ struct SettingsView: View {
                         .foregroundStyle(.red)
                 }
                 .disabled(store.groups.isEmpty)
+            }
+
+            Section {
+                if store.groups.isEmpty {
+                    Text(loc(.noGroups))
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(store.groups) { group in
+                        HStack(spacing: 8) {
+                            GroupIconView(
+                                emoji: group.emoji,
+                                symbol: group.symbol,
+                                color: Color(hex: group.color),
+                                size: 14
+                            )
+                            Text(group.name)
+                                .foregroundStyle(group.isHidden ? Color.secondary : Color.primary)
+
+                            Spacer()
+
+                            Button {
+                                store.setGroupHidden(id: group.id, hidden: !group.isHidden)
+                            } label: {
+                                Image(systemName: group.isHidden ? "eye.slash" : "eye")
+                                    .foregroundStyle(group.isHidden ? Color.secondary : Color.accentColor)
+                            }
+                            .buttonStyle(.borderless)
+                            .help(group.isHidden ? loc(.showGroup) : loc(.hideGroup))
+                        }
+                    }
+                }
+            } header: {
+                Text(loc(.groupVisibility))
+            } footer: {
+                Text(loc(.groupVisibilityHint))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
         .formStyle(.grouped)
